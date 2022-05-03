@@ -129,20 +129,27 @@ def spacing_ships(board):
         m+=1        
 
 # return hidden board
-def update_board_after_shoot(player_board, guess_board, board_size):
+def update_board_after_shoot(player_board, guess_board, board_size,user_coordinates):
     while True:
-        coordinates = get_coordinates(board_size)
+        coordinates =user_coordinates #aici o sa fie functia care o sa dea coordonatele de la player sau de la AI
         row = ord(coordinates[0]) - ord("a")
         column = int(coordinates[1])-1
         if player_board[row][column] == "-":
             player_board[row][column] = "o"
             guess_board[row][column] = "o"
             print("you've missed this time!")
+            print_board(guess_board, board_size)
             return guess_board
         elif player_board[row][column] == "T":
             player_board[row][column] = "H"
             guess_board[row][column] = "H"    
             print("You got a shot!")
+            print_board(guess_board, board_size)
+        elif player_board[row][column] == "Z":
+            player_board[row][column] = "o"
+            guess_board[row][column] = "o"
+            print("you've missed this time!")
+            print_board(guess_board, board_size)
             try:
                 if player_board[row][column] == player_board[row+1][column] == player_board[row+2][column] == "H":
                     player_board[row][column] = player_board[row+1][column] = player_board[row+2][column] = "S"
@@ -203,3 +210,10 @@ def play_with_AI():
 
 def main():
     pass
+
+
+
+
+if __name__ == "__main__":
+
+    main()
