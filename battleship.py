@@ -4,10 +4,13 @@ def get_game_mode():
 
     while True:
         player_versus = input(" Choose your gamemode:\n 1- Player vs Player\n 2- Player vs AI\n ")
-        if player_versus =="1" or player_versus =="2":
-            return player_versus
-        else:
-            print("Choose between 1 and 2")
+        try:
+            if player_versus in ["1","2"]:
+                return player_versus
+            else:
+                print("Choose between 1 and 2")
+        except ValueError:
+            print("Choose a valid number")
 
 
 # returneaza board_size int de input
@@ -15,19 +18,25 @@ def get_board_size():
     
     while True:
         board_size = input("Choose the board size between 5 and 10")
-        if int(board_size) in range(5,11):
-            return board_size
-        else:
-            print("Please choos a valid board size!")
+        try:
+            if int(board_size) in range(5,11):
+                return board_size
+            else:
+                print("Please choos a valid board size!")
+        except ValueError:
+            print("\nPlease choose a valid board size!\n")
 
 # returneaza ships_number integer input
 def get_ships_number():
 
     while True:
         ships_number = input("Choose the number of ships between 1 and 3:  ")
-        if int(ships_number) in range(1,4):
-            return ships_number
-        else:
+        try:
+            if int(ships_number) in range(1,4):
+                return ships_number
+            else:
+                print("Please choose a correct number(1 to 3)")
+        except ValueError:
             print("Please choose a correct number(1 to 3)")
 
 # returneaza turns_number
@@ -35,11 +44,13 @@ def get_turns_to_play():
     
     while True:
         turns_number = input("How many turns would you like to play? Choose a number between 5 and 50.")
-        if int(turns_number) in range(5,51):
-            return turns_number
-        else:
+        try:
+            if int(turns_number) in range(5,51):
+                return turns_number
+            else:
+                print("Please choose a valid number of turns")
+        except ValueError:
             print("Please choose a valid number of turns")
-
 
 # returneaza board lista de liste
 def generate_board(board_size):
@@ -48,7 +59,7 @@ def generate_board(board_size):
     for i in range(board_size):
         i = []
         board.append(i)
-        for j in range(i):
+        for j in range(board_size):
             j = ["-"]
             i.append(j)
 
@@ -56,7 +67,18 @@ def generate_board(board_size):
 
 # printeazaz boardul
 def print_board(board, board_size):
-    pass
+
+    letters = " ABCDEFGHIJ"
+    first_row = "  "
+    n = 0
+    for i in range(1,board_size+1):
+        first_row+= " "
+        first_row+=(" ".join(str(i)))
+        
+    print(f"\n{first_row}\n")
+    for i in board:
+        n += 1
+        print(str(letters[n])+ "  " + " ".join(i))
 
 # returneaza ships o lista de liste
 def generate_ships(ships_number):
@@ -77,19 +99,51 @@ def get_coordinates(board_size):
     numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     while True:
         player_cordinates = input("\nPlease select coordinates:\n").upper()
-        if player_cordinates:
-            if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1]) in numbers:
-                return tuple((ord(player_cordinates[0])-65, ord(player_cordinates[1])-49))
+        try:
+            if player_cordinates:
+                if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1]) in numbers:
+                    return tuple((ord(player_cordinates[0])-65, ord(player_cordinates[1])-49))
+                else:
+                    print("That's not a valid input! Try again !")
             else:
-                print("That's not a valid input! Try again !")
-        else:
-            print("Not valid input ! ")
+                print("Not valid input ! ")
+        except ValueError:
+            print("\nPlease insert valid coordinates\nExample - A10\nFirst the column - 'A', second the row '10' \n")
 
 
 
 # returneaza ship_direction, valid_direction
 def validate_ship_position(row, column, board):
-    pass
+
+    ship_direction = "\nNow, please select the direction you want the ship to go"
+    valid_directions = ""
+    while True:
+        try:
+            if board[row][column] == "-" and board[row+1][column] == "-" and board[row+2][column] == "-" and row+1<len(board[0]) and row+2<len(board[0]):
+                ship_direction  += "\n1-Down"
+                valid_directions += "1"
+        except IndexError:
+            pass
+        try:
+            if board[row][column] == "-" and board[row][column+1] == "-" and board[row][column+2] == "-" and column+1<len(board[0]) and column+2<len(board[0]):
+                ship_direction += "\n2-Right"
+                valid_directions += "2"
+        except IndexError:
+            pass
+        try :
+            if board[row][column] == "-" and board[row-1][column] == "-" and board[row-2][column] == "-" and row-1>=0 and row-2>=0:
+                ship_direction += "\n3-Up"
+                valid_directions += "3"
+        except IndexError:
+            pass
+        try:
+            if board[row][column] == "-" and board[row][column-1] == "-" and board[row][column-2] == "-" and column-1>=0 and column-2>=0:
+                ship_direction  += "\n4-Left"
+                valid_directions += "4"
+        except IndexError:
+            pass
+
+        return ship_direction,valid_directions
 
 #####
 #####
