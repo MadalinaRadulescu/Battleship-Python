@@ -1,5 +1,5 @@
 
-# returneaza player_versus str de 1 si 2
+# returneaza player_versus
 def get_game_mode():
     pass 
 
@@ -35,13 +35,55 @@ def get_coordinates(board_size):
 def validate_ship_position(row, column, board):
     pass
 
+#####
+#####
+# DE AICI IN SUS
+# MIHAI
+# RAUL
+# CRISTI
+#####
+#####
+# DE AICI IN JOS 
+# MADA
+# TOMA
+#####
+#####
+
 # return board
 def place_ships(ships, board, board_size):
     pass
 
-# return board
+#ships not closer than 1 space
 def spacing_ships(board):
-    pass
+
+    m=0
+    for j in board:
+        n=0
+        for i in j:
+            
+            if i == "T":
+                try:
+                    if n+1 < len(board[0]) and j[n+1] == "-":
+                        j[n+1] = "Z"
+                except IndexError:
+                    pass
+                try:
+                    if n-1 >= 0 and j[n-1] == "-":
+                        j[n-1] = "Z"
+                except IndexError:
+                    pass
+                try:
+                    if m+1 < len(board) and board[m+1][n] == "-":
+                        board[m+1][n] = "Z"
+                except IndexError:
+                    pass
+                try:
+                    if m-1 >= 0 and board[m-1][n] == "-":
+                        board[m-1][n] = "Z"
+                except IndexError:
+                    pass
+            n+=1   
+        m+=1        
 
 # return hidden board
 def update_board_after_shoot(player_board, guess_board, board_size):
@@ -111,7 +153,7 @@ def tie_condition(turns, counter):
     else:
         return False
 
-
+# Optional
 def play_with_AI():
     pass
 
