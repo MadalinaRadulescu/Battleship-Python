@@ -1,3 +1,10 @@
+#  de facut print pt ambele boarduri in paralel
+# main
+# timesleep
+# ai
+
+
+
 
 # returneaza player_versus
 def get_game_mode():
@@ -102,7 +109,7 @@ def get_coordinates(board_size):
         try:
             if player_cordinates:
                 if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1]) in numbers:
-                    return tuple((ord(player_cordinates[0])-65, ord(player_cordinates[1])-49))
+                    return tuple((ord(player_cordinates[0])-ord("A"), ord(player_cordinates[1])-ord("1")))
                 else:
                     print("That's not a valid input! Try again !")
             else:
@@ -115,7 +122,7 @@ def get_coordinates(board_size):
 # returneaza ship_direction, valid_direction
 def validate_ship_position(row, column, board):
 
-    ship_direction = "\nNow, please select the direction you want the ship to go"
+    ship_direction = "\nNow, please select the direction you want the ship to go\n"
     valid_directions = ""
     while True:
         try:
@@ -165,9 +172,7 @@ def place_ships(ships, board, board_size):
     for ship in ships:
         while True:
             print_board(board,board_size)
-            ship_coordinates = get_coordinates(board_size)
-            row = ord(ship_coordinates[0]) - ord("a")
-            column = int(ship_coordinates[1])-1
+            row, column = get_coordinates(board_size)
             ship_direction,valid_directions = validate_ship_position(row,column,board)
             if ship_direction != "\nNow, please select the direction you want the ship to go":
                 while True:
@@ -239,11 +244,9 @@ def spacing_ships(board):
         m+=1        
 
 # return hidden board
-def update_board_after_shoot(player_board, guess_board, board_size,user_coordinates):
+def update_board_after_shoot(player_board, guess_board, board_size):
     while True:
-        coordinates =user_coordinates #aici o sa fie functia care o sa dea coordonatele de la player sau de la AI
-        row = ord(coordinates[0]) - ord("a")
-        column = int(coordinates[1])-1
+        row, column = get_coordinates(board_size)
         if player_board[row][column] == "-":
             player_board[row][column] = "o"
             guess_board[row][column] = "o"
