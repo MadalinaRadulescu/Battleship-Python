@@ -9,7 +9,8 @@ def get_game_mode():
         else:
             print("Choose between 1 and 2")
 
-# returneaza board_size
+
+# returneaza board_size int de input
 def get_board_size():
     
     while True:
@@ -19,7 +20,7 @@ def get_board_size():
         else:
             print("Please choos a valid board size!")
 
-# returneaza ships_number
+# returneaza ships_number integer input
 def get_ships_number():
 
     while True:
@@ -40,7 +41,7 @@ def get_turns_to_play():
             print("Please choose a valid number of turns")
 
 
-# returneaza board
+# returneaza board lista de liste
 def generate_board(board_size):
     
     board = []
@@ -57,7 +58,7 @@ def generate_board(board_size):
 def print_board(board, board_size):
     pass
 
-# returneaza ships
+# returneaza ships o lista de liste
 def generate_ships(ships_number):
 
     ships = []
@@ -70,7 +71,7 @@ def generate_ships(ships_number):
 
     return ships
 
-# returneaza player_coordinates
+# returneaza player_coordinates  2 cifre coordonate
 def get_coordinates(board_size):
     letters = "ABCDEFGHIJ"
     numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -87,35 +88,128 @@ def get_coordinates(board_size):
 
 
 # returneaza ship_direction, valid_direction
-def validate_ship_position(row,column, board):
-    
-    while True:
-        pass
-        
-            
-    
+def validate_ship_position(row, column, board):
+    pass
+
+#####
+#####
+# DE AICI IN SUS
+# MIHAI
+# RAUL
+# CRISTI
+#####
+#####
+# DE AICI IN JOS 
+# MADA
+# TOMA
+#####
+#####
 
 # return board
 def place_ships(ships, board, board_size):
     pass
 
-# return board
+#ships not closer than 1 space
 def spacing_ships(board):
-    pass
+
+    m=0
+    for j in board:
+        n=0
+        for i in j:
+            
+            if i == "T":
+                try:
+                    if n+1 < len(board[0]) and j[n+1] == "-":
+                        j[n+1] = "Z"
+                except IndexError:
+                    pass
+                try:
+                    if n-1 >= 0 and j[n-1] == "-":
+                        j[n-1] = "Z"
+                except IndexError:
+                    pass
+                try:
+                    if m+1 < len(board) and board[m+1][n] == "-":
+                        board[m+1][n] = "Z"
+                except IndexError:
+                    pass
+                try:
+                    if m-1 >= 0 and board[m-1][n] == "-":
+                        board[m-1][n] = "Z"
+                except IndexError:
+                    pass
+            n+=1   
+        m+=1        
 
 # return hidden board
-def update_board_after_shoot(player_board, hidden_board, board_size):
-    pass
+def update_board_after_shoot(player_board, guess_board, board_size):
+    while True:
+        coordinates = get_coordinates(board_size)
+        row = ord(coordinates[0]) - ord("a")
+        column = int(coordinates[1])-1
+        if player_board[row][column] == "-":
+            player_board[row][column] = "o"
+            guess_board[row][column] = "o"
+            print("you've missed this time!")
+            return guess_board
+        elif player_board[row][column] == "T":
+            player_board[row][column] = "H"
+            guess_board[row][column] = "H"    
+            print("You got a shot!")
+            try:
+                if player_board[row][column] == player_board[row+1][column] == player_board[row+2][column] == "H":
+                    player_board[row][column] = player_board[row+1][column] = player_board[row+2][column] = "S"
+                    guess_board[row][column] = guess_board[row+1][column] = guess_board[row+2][column] = "S"
+                    return guess_board
+            except IndexError:
+                pass
+            try:
+                if player_board[row][column] == player_board[row][column+1] == player_board[row][column+2] == "H":
+                    player_board[row][column] = player_board[row][column+1] = player_board[row][column+2] = "S"
+                    guess_board[row][column] = guess_board[row][column+1] = guess_board[row][column+2] = "S"
+                    return guess_board    
+            except IndexError:
+                pass  
+            try:
+                if player_board[row][column] == player_board[row-1][column] == player_board[row-2][column] == "H":
+                    player_board[row][column] = player_board[row-1][column] = player_board[row-2][column] = "S"
+                    guess_board[row][column] = guess_board[row-1][column] = guess_board[row-2][column] = "S"
+                    return guess_board    
+            except IndexError:
+                pass  
+            try:
+                if player_board[row][column] == player_board[row][column-1] == player_board[row][column-2] == "H":
+                    player_board[row][column] = player_board[row][column-1] = player_board[row][column-2] = "S"
+                    guess_board[row][column] = guess_board[row][column-1] = guess_board[row][column-2] = "S"
+                    return guess_board    
+            except IndexError:
+                pass  
+            return guess_board
+        else:
+            print("Try another one, seems it wasn't a valid input")
 
 # returneaza true sau false
-def win_condition(player_one_board, player_two_board):
-    pass
+def win_condition(board, board_size):
+    counter = 0
+    for row in board:
+        if "T" not in row:
+            counter += 1
+        else:
+            pass
+            
+    if counter == board_size:
+        return True
+    else:
+        return False 
 
 # returneaza true sau false
 def tie_condition(turns, counter):
-    pass
+    if turns == counter:
+        return True
+    else:
+        return False
 
-
+# Optional
 def play_with_AI():
     pass
 
