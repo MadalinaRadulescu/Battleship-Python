@@ -154,8 +154,16 @@ def tie_condition(turns, counter):
         return False
 
 # Optional
-def play_with_AI():
-    pass
+def play_with_AI(board_size):
+    import random
+    from random import randint 
+    ai_coordinates =[]
+    while True:
+        x, y = randint(0, board_size), randint(0, board_size)
+        if tuple((x,y)) not in ai_coordinates:
+            ai_coordinates.append(tuple((x, y)))
+            continue
+        return random.choice(ai_coordinates)
 
 
 def main():
