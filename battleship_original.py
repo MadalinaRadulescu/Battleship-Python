@@ -51,7 +51,7 @@ def get_ships_number():
             ship_length = input(f"How big you want the ship number {n}/{ships_number} (1-4)?\n")
             try:
                 if int(ship_length) in range(1, 5):
-                    ships_length.append(int(ship))
+                    ships_length.append(int(ship_length))
                     break
             except ValueError:
                 print("Oops, this is not in range, please try again.\n")
@@ -80,7 +80,7 @@ def generate_board(board_size):
         i = []
         board.append(i)
         for j in range(board_size):
-            j = ["-"]
+            j = "-"
             i.append(j)
 
     return board
@@ -95,10 +95,20 @@ def print_board(board, board_size):
         first_row+= " "
         first_row+=(" ".join(str(i)))
         
-    print(f"\n{first_row}\n")
+    print(f"\n{first_row}")
     for i in board:
         n += 1
         print(str(letters[n])+ "  " + " ".join(i))
+
+    # letters = " ABCDEFGHIJ"
+    # first_row = "  "
+    # for i in range(1,board_size+1):
+    #     first_row+= " "
+    #     first_row+=(" ".join(str(i)))
+        
+    # print(f"\n{first_row}")
+    # for i in range(len(board)):
+    #     print(str(letters[i])+ "  " + " ".join(board[i]))
 
 # returneaza ships o lista de liste
 def generate_ships(ships_number=3, ship_length=[3,3,2]):
@@ -116,7 +126,7 @@ def generate_ships(ships_number=3, ship_length=[3,3,2]):
 def get_coordinates(board_size):
 
     letters = "ABCDEFGHIJ"
-    numbers = range(1,board_size)
+    numbers = range(1,board_size+1)
     while True:
         player_cordinates = input("\nPlease select coordinates:\n").upper()
         try:
@@ -143,23 +153,29 @@ def get_ship_direction_AI(valid_direction):
     return random.choice(valid_direction)
     
 # return board
-def place_ships(ships, board, board_size, user_choice):
+def place_ships(ships, board, board_size, player_versus):
 
-    c = 0
+    print_board(board,board_size)
     for ship in ships:
         while True:
-            print_board(board,board_size)
-            row, column = get_coordinates(board_size)
+            if player_versus == "1":
+                row, column = get_coordinates(board_size)
+            elif player_versus == "2":
+                row, column = play_with_AI(board_size)
             ship_direction,valid_directions = validate_ship_position(row,column,board,ship)
             if ship_direction != "\nNow, please select the direction you want the ship to go\n":
                 while True:
-                    user_choice = user_choice # se v-a schimbat in functie de oponent get_ship_direction(ship_direction) sau get_ship_direction_AI(valid_direction)
+                    c=0
+                    if player_versus == "1":
+                        user_choice = get_ship_direction(ship_direction) # se v-a schimbat in functie de oponent get_ship_direction(ship_direction) sau get_ship_direction_AI(valid_direction)
+                    elif player_versus == "2":
+                        user_choice = get_ship_direction_AI(ship_direction)    
                     if user_choice in valid_directions:
                         if user_choice == "1":
                             for i in ship:
                                 board[row+c][column] = "T"
                                 c+=1
-                            break
+                            break                        
                         elif user_choice == "2":
                             for i in ship:                                
                                 board[row][column+c] = "T" 
@@ -180,6 +196,7 @@ def place_ships(ships, board, board_size, user_choice):
                         print("Please make a valid input\n")
 
                 spacing_ships(board)
+                print_board(board, board_size)
                 break
 
             else:
@@ -191,12 +208,14 @@ def place_ships(ships, board, board_size, user_choice):
 # returneaza ship_direction, valid_direction
 def validate_ship_position(row, column, board,ship):
 
-    valid_position=0
-    c=0
+    
     ship_direction = "\nNow, please select the direction you want the ship to go\n"
     valid_directions = ""
     while True:
+        
         try:
+            c=0
+            valid_position=0
             for i in ship:
                 if board[row+c][column] == "-":
                     valid_position+=1
@@ -204,12 +223,13 @@ def validate_ship_position(row, column, board,ship):
             if valid_position == len(ship) and row+1<len(board[0]) and row+2<len(board[0]):
                 ship_direction  += "\n1-Down"
                 valid_directions += "1"
-            c=0
-            valid_position=0
+            
         except IndexError:
             pass
 
         try:
+            c=0
+            valid_position=0
             for i in ship:
                 if board[row][column+c] == "-":
                     valid_position+=1
@@ -217,25 +237,27 @@ def validate_ship_position(row, column, board,ship):
             if valid_position == len(ship) and column+1<len(board[0]) and column+2<len(board[0]):
                 ship_direction += "\n2-Right"
                 valid_directions += "2"
-            c=0
-            valid_position=0            
+                      
         except IndexError:
             pass
 
         try :
+            c=0
+            valid_position=0 
             for i in ship:
                 if board[row-c][column] == "-":
                     valid_position+=1
                 c+=1
-            if valid_position == len(ship) and board[row-2][column] == "-" and row-1>=0 and row-2>=0:
+            if valid_position == len(ship) and row-1>=0 and row-2>=0:
                 ship_direction += "\n3-Up"
                 valid_directions += "3"
-            c=0
-            valid_position=0 
+            
         except IndexError:
             pass
 
         try:
+            c=0
+            valid_position=0
             for i in ship:
                 if board[row][column-c] == "-":
                     valid_position += 1
@@ -281,10 +303,13 @@ def spacing_ships(board):
         m+=1        
 
 # return hidden board
-def update_board_after_shoot(player_board, guess_board, board_size, ship, user_choice):
+def update_board_after_shoot(player_board, guess_board, board_size, ship, player_versus):
 
     while True:
-        row, column = user_choice
+        if player_versus == "1":
+            row, column = get_coordinates(board_size)
+        elif player_versus == "2":
+            row, column = play_with_AI(board_size)
         if player_board[row][column] in ["-", "Z"]:
             player_board[row][column] = "o"
             guess_board[row][column] = "o"
@@ -400,48 +425,52 @@ def main():
     player_two_guess_board = generate_board(board_size)
     player_two_ships = generate_ships(ships_number,ships_length)
 
-    user_choice = get_coordinates(board_size)
-    user_choice_AI = play_with_AI(board_size)
-
     name = input("What's your name, player one?\n") 
     print(f'{name}, it is time to make your tactics') 
-    print_board(player_one_board, board_size)
-    place_ships(player_one_ships, player_one_board, board_size, user_choice)
-    
+ # to remove, not needed cause it is called later - updated removed
+    place_ships(player_one_ships, player_one_board, board_size, player_versus)
     if player_versus == "1":
 
         name_two = input("What's your name, player two?\n")
         print(f'{name_two}, it is time to make your tactics') 
-        print_board(player_two_board, board_size)
-        place_ships(player_two_ships, player_two_board, board_size, user_choice)
+
+        place_ships(player_two_ships, player_two_board, board_size, player_versus)
     
     elif player_versus == "2":
         name_two = "the computer"
-        place_ships(player_two_ships, player_two_board, board_size, user_choice_AI)
+        place_ships(player_two_ships, player_two_board, board_size, player_versus)
         print(f"You are playing against {name_two}")
 
     while True:
         
         print(f"It's time for {name} to shoot")
+        print_board(player_two_guess_board, board_size)
+        player_two_board = update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_two_ships,player_versus)
         print_board(player_two_board, board_size)
-        update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_two_ships, user_choice)
-        if win_condition():
+        if win_condition(player_two_board, board_size):
             print(f"{name}, you have won!")
             break
-
+        
+        # Player 2
         print(f"It's time for {name_two} to shoot")
-        print_board(player_one_board, board_size)
+        print_board(player_one_guess_board, board_size)
         if player_versus == "1":
-            update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, user_choice)
+            update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus)
+        if win_condition(player_one_board, board_size):
+            print(f"{name_two}, you have won!")
+            break
+        
+        # Computer turn
         else:
-            update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, user_choice_AI)
-        if win_condition():
+            update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus)
+        if win_condition(player_one_board, board_size):
             print(f"{name_two}, you have won!")
             break
 
         if tie_condition(turns, counter):
             print("It's a tie!")
             break
+        
         counter+=1
 
     
