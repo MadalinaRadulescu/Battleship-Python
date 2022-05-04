@@ -1,7 +1,2 @@
-import random
 
-
-
-print(random.choice("123"))
-
-
+print(generate_ships())
