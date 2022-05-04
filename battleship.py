@@ -83,6 +83,7 @@ def print_board(board, board_size):
         first_row+=(" ".join(str(i)))
         
     print(f"\n{first_row}\n")
+
     for i in board:
         n += 1
         print(str(letters[n])+ "  " + " ".join(i))
@@ -124,7 +125,7 @@ def get_coordinates(board_size):
             print("\nPlease insert valid coordinates\nExample - A10\nFirst the column - 'A', second the row '10' \n")
 
 # returneaza ship_direction, valid_direction
-def validate_ship_position(row, column, board,ship):
+def validate_ship_position(row, column, board, ship):
 
     valid_position=0
     c=0
