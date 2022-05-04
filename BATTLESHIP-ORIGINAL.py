@@ -1,15 +1,11 @@
+from random import randint, random
+import random
 #  de facut print pt ambele boarduri in paralel
 # main
 # timesleep
 # ai
 
-
-
-
 # returneaza player_versus
-from multiprocessing.sharedctypes import Value
-
-
 def get_game_mode():
 
     while True:
@@ -22,7 +18,6 @@ def get_game_mode():
         except ValueError:
             print("Choose a valid number")
 
-
 # returneaza board_size int de input
 def get_board_size():
     
@@ -30,7 +25,7 @@ def get_board_size():
         board_size = input("Choose the board size between 5 and 10")
         try:
             if int(board_size) in range(5,11):
-                return board_size
+                return int(board_size)
             else:
                 print("Please choos a valid board size!")
         except ValueError:
@@ -111,6 +106,7 @@ def generate_ships(ships_number):
 
 # returneaza player_coordinates  2 cifre coordonate
 def get_coordinates(board_size):
+
     letters = "ABCDEFGHIJ"
     numbers = range(1,board_size)
     while True:
@@ -126,8 +122,20 @@ def get_coordinates(board_size):
         except ValueError:
             print("\nPlease insert valid coordinates\nExample - A10\nFirst the column - 'A', second the row '10' \n")
 
+# cand o sa fie turn-ul pentru playeri reali, se v-a declara ca variabila user_choice = numele functiei
+def get_ship_direction(ship_direction):
+
+    user_choice = input(ship_direction)
+
+    return user_choice
+
+# cand o sa fie turn-ul pentru computer, se v-a declara ca variabila user_choice = numele functiei
+def get_ship_direction_AI(valid_direction):
+
+    return random.choice(valid_direction)
+    
 # return board
-def place_ships(ships, board, board_size):
+def place_ships(ships, board, board_size, user_choice):
 
     c = 0
     for ship in ships:
@@ -137,7 +145,7 @@ def place_ships(ships, board, board_size):
             ship_direction,valid_directions = validate_ship_position(row,column,board,ship)
             if ship_direction != "\nNow, please select the direction you want the ship to go\n":
                 while True:
-                    user_choice = input(ship_direction)
+                    user_choice = user_choice # se v-a schimbat in functie de oponent get_ship_direction(ship_direction) sau get_ship_direction_AI(valid_direction)
                     if user_choice in valid_directions:
                         if user_choice == "1":
                             for i in ship:
@@ -171,7 +179,6 @@ def place_ships(ships, board, board_size):
 
     
     return board
-
 
 # returneaza ship_direction, valid_direction
 def validate_ship_position(row, column, board,ship):
@@ -233,7 +240,6 @@ def validate_ship_position(row, column, board,ship):
 
         return ship_direction,valid_directions
 
-
 #ships not closer than 1 space
 def spacing_ships(board):
 
@@ -268,6 +274,7 @@ def spacing_ships(board):
 
 # return hidden board
 def update_board_after_shoot(player_board, guess_board, board_size, ship):
+
     while True:
         row, column = get_coordinates(board_size)
         if player_board[row][column] in ["-", "Z"]:
@@ -375,6 +382,7 @@ def update_board_after_shoot(player_board, guess_board, board_size, ship):
 
 # returneaza true sau false
 def win_condition(board, board_size):
+
     counter = 0
     for row in board:
         if "T" not in row:
@@ -389,23 +397,36 @@ def win_condition(board, board_size):
 
 # returneaza true sau false
 def tie_condition(turns, counter):
+
     if turns == counter:
         return True
     else:
         return False
 
 # Optional
-def play_with_AI(board_size):
-    import random
-    from random import randint 
-    ai_coordinates =[]
-    while True:
-        x, y = randint(0, board_size), randint(0, board_size)
-        if tuple((x,y)) not in ai_coordinates:
-            ai_coordinates.append(tuple((x, y)))
-            continue
-        return random.choice(ai_coordinates)
+# Hits este o variabila care se declara inainte de inceperea jocului, in partea de AI.
+# Ea da count pentru fiecare Hit de pe tabla inamicului
+# Prima oara se compara pentru validare, dupa ce vede daca hits venit de afara este mai mare 
+# Decat cel care e in interiorul functiei
+def play_with_AI(board_size,hits,p_hits, player_one_guess_board=5):
+    # import random
+    # from random import randint 
+    # ai_coordinates =[]
+    # while True:
+    #     x, y = randint(0, board_size), randint(0, board_size)
+    #     if tuple((x,y)) not in ai_coordinates:
+    #         ai_coordinates.append(tuple((x, y)))
+    #         continue
+    #     return random.choice(ai_coordinates)
 
+    coordinates_validation_list = []
+    while True:
+        coordinates = randint(0,board_size),randint(0,board_size)
+        if coordinates not in coordinates_validation_list:
+            coordinates_validation_list.append(coordinates)
+            return coordinates
+
+    
 
 def main():
     pass
