@@ -126,8 +126,8 @@ def get_coordinates(board_size):
         try:
             if player_cordinates:
                 try:
-                    if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1]) in numbers:
-                        return tuple((ord(player_cordinates[0])-ord("A"), ord(player_cordinates[1])-ord("1")))
+                    if player_cordinates[0] in letters[:board_size] and int(player_cordinates[:1]) in numbers:
+                        return tuple((ord(player_cordinates[0])-ord("A"), ord(player_cordinates[:1])-ord("1")))
                 except IndexError:
                     pass
                 else:
