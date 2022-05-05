@@ -97,8 +97,12 @@ def print_board(board, board_size):
     first_row = "  "
     n = 0
     for i in range(1,board_size+1):
+        
         first_row+= " "
-        first_row+=(" ".join(str(i)))
+        if i > 9 :
+            first_row+=("".join(str(i)))
+        else:        
+            first_row+=(" ".join(str(i)))
         
     print(f"\n{first_row}")
     for i in board:
@@ -120,15 +124,19 @@ def generate_ships(ships_number=3, ship_length=[3,3,2]):
 # returneaza player_coordinates  2 cifre coordonate
 def get_coordinates(board_size):
 
-    letters = "ABCDEFGHIJ"
+    letters = "ABCDEFGHIJKL"
     numbers = range(1, board_size+1)
     while True:
         player_cordinates = input("\nPlease select coordinates:\n").upper()
         try:
             if player_cordinates:
+                print(player_cordinates)
                 try:
-                    if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1]) in numbers:
-                        return tuple((ord(player_cordinates[0])-ord("A"), ord(player_cordinates[1])-ord("1")))
+                    if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1:]) in numbers:
+                        if int(player_cordinates[1:]) > 9 : 
+                            return tuple((ord(player_cordinates[0])-ord("A"), 9))
+                        else:                       
+                            return tuple((ord(player_cordinates[0])-ord("A"), ord(player_cordinates[1:])-ord("1")))
                 except IndexError:
                     pass
                 else:
