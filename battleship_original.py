@@ -1,5 +1,4 @@
 from random import randint, random, choice
-from typing import Counter
 import time
 
 # de facut print pt ambele boarduri in paralel
@@ -12,13 +11,20 @@ import time
 # returneaza player_versus
 def get_game_mode():
 
+    difficulty_of_AI=""
     while True:
-        player_versus = input(" Choose your gamemode:\n 1- Player vs Player\n 2- Player vs AI\n ")
+        player_versus = input(" Choose your gamemode:\n 1- Player vs Player\n 2- Player vs AI\n 3- AI vs AI \n")
         try:
-            if player_versus in ["1","2"]:
-                return player_versus
+            if player_versus == "1":
+                return player_versus, difficulty_of_AI
+            elif player_versus == "2":
+                difficulty_of_AI = input("Please select the difficulty of AI\n 1- I want to have fun\n 2- DESTROY ME!\n")
+                if difficulty_of_AI in ["1", "2"]:
+                    return player_versus, difficulty_of_AI
+            elif player_versus == "3":
+                return player_versus, difficulty_of_AI
             else:
-                print("Choose between 1 and 2")
+                print("Choose between 1, 2 and 3")
         except ValueError:
             print("Choose a valid number")
 
@@ -71,7 +77,10 @@ def get_turns_to_play(ships_lenght):
         turns = input(f"How many turns would you like to play? Choose a number between {minimum_turns} and 50\n")
         try:
             if int(turns) in range(minimum_turns,51):
-                return turns
+                return int(turns)
+            elif int(turns) == 0:
+                turns = 100
+                return int(turns)
             else:
                 print("Please choose a valid number of turns\n")
         except ValueError:
@@ -171,9 +180,9 @@ def place_ships(ships, board, board_size, player_versus,counter):
                 if counter % 2 == 0:
                     row, column = get_coordinates(board_size)
                 elif counter % 2 == 1:
-                    row, column = play_with_AI(board_size)
+                    row, column = play_with_AI(board_size, player_versus, counter)
             elif player_versus == "3":
-                row, column = play_with_AI(board_size)
+                row, column = play_with_AI(board_size, player_versus, counter)
              
             ship_direction,valid_directions = validate_ship_position(row,column,board,ship)
             if ship_direction != "\nNow, please select the direction you want the ship to go\n":
@@ -341,23 +350,23 @@ def update_board_after_shoot(player_board, guess_board, board_size, ship, player
             if counter % 2 == 0:
                 row, column = get_coordinates(board_size)
             elif counter % 2 == 1:
-                row, column = play_with_AI(board_size)
+                row, column = play_with_AI(board_size, player_versus, counter)
         elif player_versus == "3":
-            row, column = play_with_AI(board_size)
+            row, column = play_with_AI(board_size, player_versus, counter)
                 
         
         try:
             if player_board[row][column] in ["-", "Z"]:
                 player_board[row][column] = "o"
                 guess_board[row][column] = "o"
-                print("you've missed this time!")
+                print("\nyou've missed this time!")
                 return guess_board
         
             elif player_board[row][column] == "T":
                 player_board[row][column] = "H"
                 guess_board[row][column] = "H"    
-                print("You got a shot!")
-                print_board(guess_board, board_size)
+                print("\nYou got a shot!")
+                return guess_board
             
             c = 0
             count_validator = 0
@@ -366,9 +375,10 @@ def update_board_after_shoot(player_board, guess_board, board_size, ship, player
                 if player_board[row+c][column] == "H":
                     count_validator += 1
                 c += 1
-                if count_validator == len(ship):
-                    player_board[row+c][column] = "S"
-                    guess_board[row+c][column] = "S"
+            if count_validator == len(ship):
+                for i in ship:
+                    player_board[row-c][column] = "S"
+                    guess_board[row-c][column] = "S"
                     return guess_board                    
     
             c = 0
@@ -377,10 +387,11 @@ def update_board_after_shoot(player_board, guess_board, board_size, ship, player
                 if player_board[row-c][column] == "H":
                     count_validator += 1
 
-                if count_validator == len(ship):
+            if count_validator == len(ship):
+                for i in ship:
                     player_board[row-c][column] = "S"
                     guess_board[row-c][column] = "S"
-                    return guess_board
+                return guess_board
                 c -= 1
             
             c = 0
@@ -430,7 +441,7 @@ def win_condition(board, board_size):
 # returneaza true sau false
 def tie_condition(turns, counter):
 
-    if turns == counter/2:
+    if turns == counter//2:
         return True
     else:
         return False
@@ -440,30 +451,52 @@ def tie_condition(turns, counter):
 # Ea da count pentru fiecare Hit de pe tabla inamicului
 # Prima oara se compara pentru validare, dupa ce vede daca hits venit din afara este mai mare 
 # Decat cel care e in interiorul functiei
-def play_with_AI(board_size,hits=1,p_hits=1, player_one_guess_board=5):
+def play_with_AI(board_size, player_versus, counter,hits=1,p_hits=1, player_one_guess_board=5, difficulty_of_AI="1"):
     
     time.sleep(1)
-    coordinates_validation_list = []
-    while True:
-        coordinates = randint(0,board_size),randint(0,board_size)
-        if coordinates not in coordinates_validation_list:
-            coordinates_validation_list.append(coordinates)
-            return coordinates
+    if player_versus == "2":
+        if difficulty_of_AI == "1":
 
-def print_paralel_board(board_size, player_one_guess_board, player_two_guess_board):
+            coordinates_validation_list = []
+            while True:
+                coordinates = randint(0,board_size),randint(0,board_size)
+                if coordinates not in coordinates_validation_list:
+                    coordinates_validation_list.append(coordinates)
+                    return coordinates  
+    if player_versus == "3":
+        if counter % 2 == 0:
+            coordinates_validation_list = []
+            while True:
+                coordinates = randint(0,board_size),randint(0,board_size)
+                if coordinates not in coordinates_validation_list:
+                    coordinates_validation_list.append(coordinates)
+                    return coordinates 
+        elif counter % 2 == 1:
+            coordinates_validation_list_two = []
+            while True:
+                coordinates = randint(0,board_size),randint(0,board_size)
+                if coordinates not in coordinates_validation_list_two:
+                    coordinates_validation_list_two.append(coordinates)
+                    return coordinates
+        
+
+def print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two):
 
     letters = " ABCDEFGHIJ"
     first_row = "  "
     new_str = " "
-    space_var = " "* (board_size-1)
+    space_var = " "* (board_size-4)
     n = 0
     for i in range(1,board_size+1):
         first_row+= " "
-        first_row+=(" ".join(str(i)))
+        if i < 10:
+            first_row+=(" ".join(str(i)))
+        else:
+            first_row+=("".join(str(i)))
         
     c = 0
     for i in new_str:
-        print(f"\n{space_var}Player One{space_var}Player Two\n")
+        print(f"\n{space_var}{name}{space_var} {name_two}{space_var}\n")
         print(f"{first_row}   {first_row}")
     for i in player_one_guess_board:
         c += 1
@@ -474,7 +507,7 @@ def print_paralel_board(board_size, player_one_guess_board, player_two_guess_boa
 
 def main():
     
-    player_versus = get_game_mode()
+    player_versus, difficulty_of_AI = get_game_mode()
     board_size = get_board_size()
     ships_number, ships_length = get_ships_number()
     turns = get_turns_to_play(ships_length)
@@ -487,58 +520,97 @@ def main():
     player_two_guess_board = generate_board(board_size)
     player_two_ships = generate_ships(ships_number,ships_length)
     
-    counter = 0
-    name = input("What's your name, player one?\n") 
-    print(f'{name}, it is time to make your tactics') 
+    
  # to remove, not needed cause it is called later - updated removed
-    place_ships(player_one_ships, player_one_board, board_size, player_versus, counter)
-    counter = 1
+    
+    counter = 0
     if player_versus == "1":
+        name = input("What's your name, player one?\n") 
+        print(f'{name}, it is time to make your tactics') 
+        place_ships(player_one_ships, player_one_board, board_size, player_versus, counter)
 
         name_two = input("What's your name, player two?\n")
         print(f'{name_two}, it is time to make your tactics') 
-
         place_ships(player_two_ships, player_two_board, board_size, player_versus, counter)
     
     elif player_versus == "2":
+        name = input("What's your name, player one?\n") 
+        print(f'{name}, it is time to make your tactics') 
+        place_ships(player_one_ships, player_one_board, board_size, player_versus, counter)
         name_two = "the computer"
         place_ships(player_two_ships, player_two_board, board_size, player_versus, counter)
         print(f"You are playing against {name_two}")
-        
-    counter = 0
-    while True:
-        
-        if counter % 2 == 0:
-            print(f"It's time for {name} to shoot")
-            print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
-            update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_two_ships,player_versus, counter)
-            print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
-            if win_condition(player_two_board, board_size):
-                print(f"{name}, you have won!")
-                break
-        
-        # Player 2
-        if counter % 2 == 1:
-            print(f"It's time for {name_two} to shoot")
-            print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
-            if player_versus == "1":
-                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus, counter)
-                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
-            if win_condition(player_one_board, board_size):
-                print(f"{name_two}, you have won!")
-                break
-        
-            # Computer turn
-            else:
-                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus, counter)
-                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
-            if win_condition(player_one_board, board_size):
-                print(f"{name_two}, you have won!")
-                break
 
-            if tie_condition(turns, counter):
-                print("It's a tie!")
-                break
+    elif player_versus == "3":
+        name = "Anos Voldigoad"
+        place_ships(player_one_ships, player_one_board, board_size, player_versus, counter)
+        print(f"You are playing against {name}")
+        name_two = "Silver Surfer"
+        place_ships(player_two_ships, player_two_board, board_size, player_versus, counter)
+        print(f"You are playing against {name_two}")
+
+        
+    
+    while True:
+        print(f"Number of turn: {counter//2} out of {turns}")
+
+        if player_versus == "1":
+            if counter % 2 == 0:
+                print(f"\nIt's time for {name} to shoot")
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_two_ships,player_versus, counter)
+                if win_condition(player_two_board, board_size):
+                    print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                    print(f"{name}, you have won!")
+                    break
+            
+            # Player 2
+            if counter % 2 == 1:
+                print(f"\nIt's time for {name_two} to shoot")
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus, counter)
+                if win_condition(player_one_board, board_size):
+                    print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                    print(f"{name_two}, you have won!")
+                    break
+        
+        if player_versus == "2":
+            if counter % 2 == 0:
+                print(f"\nIt's time for {name} to shoot")
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_two_ships,player_versus, counter)
+                if win_condition(player_two_board, board_size):
+                    print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                    print(f"{name}, you have won!")
+                    break
+            if counter % 2 == 1:
+                print("\nIt's time for the computer to shoot")
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus, counter)
+                if win_condition(player_two_board, board_size):
+                    print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                    print("The computer has won")
+        
+        if player_versus == "3":
+            if counter % 2 == 0:
+                print("\nIt's time for the computer one to shoot")
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_two_ships, player_versus, counter)
+                if win_condition(player_two_board, board_size):
+                    print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                    print("The computer has won")
+            if counter % 2 == 1:
+                print("\nIt's time for the computer two to shoot")
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus, counter)
+                if win_condition(player_two_board, board_size):
+                    print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+                    print("The computer has won")
+
+        if tie_condition(turns, counter):
+            print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
+            print("\nIt's a tie!\n")
+            break
 
         counter+=1
 
