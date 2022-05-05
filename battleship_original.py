@@ -165,23 +165,29 @@ def place_ships(ships, board, board_size, player_versus,counter):
                     row, column = play_with_AI(board_size)
             elif player_versus == "3":
                 row, column = play_with_AI(board_size)
-
+             
             ship_direction,valid_directions = validate_ship_position(row,column,board,ship)
             if ship_direction != "\nNow, please select the direction you want the ship to go\n":
                 while True:
                     c=0
                     try:
-                        if player_versus == "1":
-                            user_choice = get_ship_direction(ship_direction)
-                        elif player_versus == "2":
-                            if counter % 2 == 0:
+                        if len(ship) == 1:
+                            user_choice = ""
+                            pass
+                        else:
+                            if player_versus == "1":
                                 user_choice = get_ship_direction(ship_direction)
-                            elif counter % 2 == 1:
+                            elif player_versus == "2":
+                                if counter % 2 == 0:
+                                    user_choice = get_ship_direction(ship_direction)
+                                elif counter % 2 == 1:
+                                    user_choice = get_ship_direction_AI(valid_directions)
+                            elif player_versus == "3":
                                 user_choice = get_ship_direction_AI(valid_directions)
-                        elif player_versus == "3":
-                            user_choice = get_ship_direction_AI(valid_directions)
-   
-                        if user_choice in valid_directions:
+                        if user_choice in valid_directions or len(ship) == 1:
+                            if len(ship) == 1:
+                                board[row][column] = "T"
+                                break
                             if user_choice == "1":
                                 for i in ship:
                                     board[row+c][column] = "T"
@@ -260,9 +266,9 @@ def validate_ship_position(row, column, board,ship):
             valid_position=0 
             for i in ship:
                 if board[row-c][column] == "-":
-                    valid_position+=1
-                c+=1
-            if valid_position == len(ship) and row-1>=0 and row-2>=0:
+                    valid_position += 1
+                c += 1
+            if valid_position == len(ship) and row-(len(ship)-1)>=0:
                 ship_direction += "\n3-Up"
                 valid_directions += "3"
             
@@ -276,9 +282,10 @@ def validate_ship_position(row, column, board,ship):
                 if board[row][column-c] == "-":
                     valid_position += 1
                 c+=1
-            if valid_position == len(ship) and column-1>=0 and column-2>=0:
+            if valid_position == len(ship) and column-(len(ship)-1)>=0:
                 ship_direction  += "\n4-Left"
                 valid_directions += "4"
+            
         except IndexError:
             pass
 
