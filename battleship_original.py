@@ -64,12 +64,13 @@ def get_ships_number():
     return int(ships_number), ships_length
 
 # returneaza turns_number
-def get_turns_to_play():
+def get_turns_to_play(ships_lenght):
     
+    minimum_turns = sum(ships_lenght)
     while True:
-        turns = input("How many turns would you like to play? Choose a number between 5 and 50\n")
+        turns = input(f"How many turns would you like to play? Choose a number between {minimum_turns} and 50\n")
         try:
-            if int(turns) in range(5,51):
+            if int(turns) in range(minimum_turns,51):
                 return turns
             else:
                 print("Please choose a valid number of turns\n")
@@ -457,7 +458,7 @@ def main():
     player_versus = get_game_mode()
     board_size = get_board_size()
     ships_number, ships_length = get_ships_number()
-    turns = get_turns_to_play()
+    turns = get_turns_to_play(ships_length)
 
     player_one_board = generate_board(board_size)
     player_one_guess_board = generate_board(board_size)
