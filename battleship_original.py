@@ -120,14 +120,14 @@ def generate_ships(ships_number=3, ship_length=[3,3,2]):
 def get_coordinates(board_size):
 
     letters = "ABCDEFGHIJ"
-    numbers = range(1,board_size+1)
+    numbers = range(1, board_size+1)
     while True:
         player_cordinates = input("\nPlease select coordinates:\n").upper()
         try:
             if player_cordinates:
                 try:
-                    if player_cordinates[0] in letters[:board_size] and int(player_cordinates[:1]) in numbers:
-                        return tuple((ord(player_cordinates[0])-ord("A"), ord(player_cordinates[:1])-ord("1")))
+                    if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1]) in numbers:
+                        return tuple((ord(player_cordinates[0])-ord("A"), ord(player_cordinates[1])-ord("1")))
                 except IndexError:
                     pass
                 else:
@@ -233,7 +233,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row+c][column] == "-":
                     valid_position+=1
                 c+=1
-            if valid_position == len(ship) and row+1<=len(board[0]) and row+2<=len(board[0]):
+            if valid_position == len(ship) and row+1<len(board[0]) and row+2<len(board[0]):
                 ship_direction  += "\n1-Down"
                 valid_directions += "1"
             
@@ -247,7 +247,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row][column+c] == "-":
                     valid_position+=1
                 c+=1
-            if valid_position == len(ship) and column+1<=len(board[0]) and column+2<=len(board[0]):
+            if valid_position == len(ship) and column+1<len(board[0]) and column+2<len(board[0]):
                 ship_direction += "\n2-Right"
                 valid_directions += "2"
                       
@@ -261,7 +261,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row-c][column] == "-":
                     valid_position+=1
                 c+=1
-            if valid_position == len(ship) and row-1<=len(board[0]) and row-2<=len(board[0]):
+            if valid_position == len(ship) and row-1>=0 and row-2>=0:
                 ship_direction += "\n3-Up"
                 valid_directions += "3"
             
@@ -275,7 +275,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row][column-c] == "-":
                     valid_position += 1
                 c+=1
-            if valid_position == len(ship) and column-1<=len(board[0]) and column-2<=len(board[0]):
+            if valid_position == len(ship) and column-1>=0 and column-2>=0:
                 ship_direction  += "\n4-Left"
                 valid_directions += "4"
         except IndexError:
