@@ -195,12 +195,12 @@ def place_ships(ships, board, board_size, player_versus,counter):
                             elif user_choice == "3":
                                 for i in ship:
                                     board[row-c][column] = "T"                             
-                                    c-=1
+                                    c+=1
                                 break
                             elif user_choice == "4":
                                 for i in ship:
                                     board[row][column-c] = "T" 
-                                    c-=1
+                                    c+=1
                                 break
                     except IndexError:
                         pass
@@ -234,7 +234,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row+c][column] == "-":
                     valid_position+=1
                 c+=1
-            if valid_position == len(ship) and row+1<len(board[0]) and row+2<len(board[0]):
+            if valid_position == len(ship) and row+1<=len(board[0]) and row+2<=len(board[0]):
                 ship_direction  += "\n1-Down"
                 valid_directions += "1"
             
@@ -248,7 +248,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row][column+c] == "-":
                     valid_position+=1
                 c+=1
-            if valid_position == len(ship) and column+1<len(board[0]) and column+2<len(board[0]):
+            if valid_position == len(ship) and column+1<=len(board[0]) and column+2<=len(board[0]):
                 ship_direction += "\n2-Right"
                 valid_directions += "2"
                       
@@ -262,7 +262,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row-c][column] == "-":
                     valid_position+=1
                 c+=1
-            if valid_position == len(ship) and row-1>=0 and row-2>=0:
+            if valid_position == len(ship) and row-1<=len(board[0]) and row-2<=len(board[0]):
                 ship_direction += "\n3-Up"
                 valid_directions += "3"
             
@@ -276,7 +276,7 @@ def validate_ship_position(row, column, board,ship):
                 if board[row][column-c] == "-":
                     valid_position += 1
                 c+=1
-            if valid_position == len(ship) and column-1>=0 and column-2>=0:
+            if valid_position == len(ship) and column-1<=len(board[0]) and column-2<=len(board[0]):
                 ship_direction  += "\n4-Left"
                 valid_directions += "4"
         except IndexError:
@@ -336,7 +336,6 @@ def update_board_after_shoot(player_board, guess_board, board_size, ship, player
                 player_board[row][column] = "o"
                 guess_board[row][column] = "o"
                 print("you've missed this time!")
-                print_board(guess_board, board_size)
                 return guess_board
         
             elif player_board[row][column] == "T":
@@ -435,7 +434,24 @@ def play_with_AI(board_size,hits=1,p_hits=1, player_one_guess_board=5):
             coordinates_validation_list.append(coordinates)
             return coordinates
 
-    
+def print_paralel_board(board_size, player_one_guess_board, player_two_guess_board):
+
+    letters = " ABCDEFGHIJ"
+    first_row = "  "
+    new_str = " "
+    space_var = " "* (board_size-1)
+    n = 0
+    for i in range(1,board_size+1):
+        first_row+= " "
+        first_row+=(" ".join(str(i)))
+        
+    c = 0
+    for i in new_str:
+        print(f"{space_var}Player One{space_var}Player Two\n{first_row}   {first_row}")
+    for i in player_one_guess_board:
+        c += 1
+        print(str(letters[c])+ "  " + " ".join(player_one_guess_board[n])+ "   " + str(letters[c])+ "  " + " ".join(player_two_guess_board[n]))
+        n += 1
 
 def main():
     
@@ -475,8 +491,9 @@ def main():
         
         if counter % 2 == 0:
             print(f"It's time for {name} to shoot")
-            print_board(player_two_guess_board, board_size)
+            print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
             update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_two_ships,player_versus, counter)
+            print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
             if win_condition(player_two_board, board_size):
                 print(f"{name}, you have won!")
                 break
@@ -484,9 +501,10 @@ def main():
         # Player 2
         if counter % 2 == 1:
             print(f"It's time for {name_two} to shoot")
-            print_board(player_one_guess_board, board_size)
+            print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
             if player_versus == "1":
                 update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus, counter)
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
             if win_condition(player_one_board, board_size):
                 print(f"{name_two}, you have won!")
                 break
@@ -494,6 +512,7 @@ def main():
             # Computer turn
             else:
                 update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_one_ships, player_versus, counter)
+                print_paralel_board(board_size, player_one_guess_board, player_two_guess_board)
             if win_condition(player_one_board, board_size):
                 print(f"{name_two}, you have won!")
                 break
