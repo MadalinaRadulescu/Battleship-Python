@@ -1,6 +1,6 @@
 from random import randint, random, choice
 from typing import Counter
-from unittest.util import _count_diff_hashable
+import time
 
 # de facut print pt ambele boarduri in paralel
 # timesleep pentru partile unde joaca ai-ul
@@ -156,6 +156,7 @@ def get_ship_direction(ship_direction):
 # cand o sa fie turn-ul pentru computer, se v-a declara ca variabila user_choice = numele functiei
 def get_ship_direction_AI(valid_directions):
     
+    time.sleep(1)
     return choice(valid_directions) 
     
 # return board
@@ -236,7 +237,6 @@ def place_ships(ships, board, board_size, player_versus,counter):
 # returneaza ship_direction, valid_direction
 def validate_ship_position(row, column, board,ship):
 
-    
     ship_direction = "\nNow, please select the direction you want the ship to go\n"
     valid_directions = ""
     while True:
@@ -441,7 +441,8 @@ def tie_condition(turns, counter):
 # Prima oara se compara pentru validare, dupa ce vede daca hits venit din afara este mai mare 
 # Decat cel care e in interiorul functiei
 def play_with_AI(board_size,hits=1,p_hits=1, player_one_guess_board=5):
-
+    
+    time.sleep(1)
     coordinates_validation_list = []
     while True:
         coordinates = randint(0,board_size),randint(0,board_size)
@@ -462,11 +463,14 @@ def print_paralel_board(board_size, player_one_guess_board, player_two_guess_boa
         
     c = 0
     for i in new_str:
-        print(f"{space_var}Player One{space_var}Player Two\n{first_row}   {first_row}")
+        print(f"\n{space_var}Player One{space_var}Player Two\n")
+        print(f"{first_row}   {first_row}")
     for i in player_one_guess_board:
         c += 1
         print(str(letters[c])+ "  " + " ".join(player_one_guess_board[n])+ "   " + str(letters[c])+ "  " + " ".join(player_two_guess_board[n]))
         n += 1
+
+        
 
 def main():
     
