@@ -1,25 +1,15 @@
-
-
-# board = [["-", "-", "-","-", "-"],["-", "-", "-","-", "-"],["-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-"]]
-# def print_board(board, board_size):
-
-#     letters = " ABCDEFGHIJ"
-#     first_row = "  "
-#     n = 0
-#     for i in range(1,board_size+1):
-#         first_row+= " "
-#         first_row+=(" ".join(str(i)))
+reseted_counter = 0
+kept_counter = 0
+def play_with_AI(board_size,reseted_counter=1,kept_counter=1, player_one_guess_board=5):
+    
+    reseted_counter = 0
+    for row in player_one_guess_board:
+        for space in row:
+            if space == "H":
+                reseted_counter += 1
+    if reseted_counter < kept_counter:
+        kept_counter = reseted_counter
         
-#     print(f"\n{first_row}")
-#     for i in board:
-#         n += 1
-#         print(str(letters[n])+ "  " + " ".join(i))
 
 
-# print_board(board, 5)
-
-
-ship = ["T","T"]
-
-print(len(ship))
 
