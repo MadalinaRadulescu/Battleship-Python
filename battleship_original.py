@@ -1,5 +1,6 @@
 from random import randint, random, choice
 import time
+from wsgiref.util import shift_path_info
 
 # de facut print pt ambele boarduri in paralel
 # timesleep pentru partile unde joaca ai-ul
@@ -341,7 +342,7 @@ def spacing_ships(board):
         m+=1        
 
 # return hidden board
-def update_board_after_shoot(player_board, guess_board, board_size, player_versus, counter):
+def update_board_after_shoot(player_board, guess_board, board_size, player_versus, counter,ships_length):
 
     while True:
         if player_versus == "1":
@@ -354,7 +355,8 @@ def update_board_after_shoot(player_board, guess_board, board_size, player_versu
         elif player_versus == "3":
             row, column = play_with_AI(board_size, player_versus, counter)
                 
-        
+        # switch_hits_to_sunk(row,player_board,guess_board, ships_length)
+
         try:
             if player_board[row][column] in ["-", "Z"]:
                 player_board[row][column] = "o"
@@ -452,86 +454,109 @@ def print_paralel_board(board_size, player_one_guess_board, player_two_guess_boa
         print(str(letters[c])+ "  " + " ".join(player_one_guess_board[n])+ "   " + str(letters[c])+ "  " + " ".join(player_two_guess_board[n]))
         n += 1
 
-# def check_perimeter(player_board, row, column):
-
-#     if player_board[row][column] == "H":
-#         if player_board[row+1][column] in ["H"]:
-#             check_perimeter(player_board, row, column)
-#             if player_board[row-1][column] in ["H"] and player_board[row-1][column] != "T":
-#                 check_perimeter(player_board, row, column)
-#                 if player_board[row][column+1] in ["H"]:
-#                     check_perimeter(player_board, row, column)
-#                     if player_board[row][column-1] in ["H"]:
-#                         return True
-
-
-
-#     if counter_of_T == 0:
-
-
-
-# def change_hits_to_sunk(ship, player_board,guess_board, row, column):
+def check_row(row,ships_lenght, player_board):
     
-#     c = -1
-#     r = -1
-#     for row in len(player_board):
-#         c+=1
-#         for space in row: 
-#             r+=1
-#             if player_board[c][r]
-        
+    counter_of_H = 0
+    biggest_ship = max(ships_lenght)
 
+    index=0
+    for i in player_board[row]:
+        ship_to_sunk = []
+        counter=1
+        if i == "Z":            
+            for j in range(biggest_ship+1):
+                if player_board[row][index+counter] == "H":
+                    counter_of_H +=1
+                    ship_to_sunk.append(index+counter)
+                if player_board[row][index+counter] == "T":
+                    counter_of_H = 0
+                    ship_to_sunk = []
+                    return  ship_to_sunk
+                if player_board[row][index+counter] == "Z" and counter_of_H > 1:
+                    return  ship_to_sunk
+                if index+counter is len(row)-1:
+                    if player_board[row][index+counter]=="H":
+                        return  ship_to_sunk
+                counter+=1
+        if i == "H":
+            counter = 0
+            for j in range(biggest_ship+1):
+                if player_board[row][index+counter] == "H":
+                    counter_of_H +=1
+                    ship_to_sunk.append(index+counter)
+                if player_board[row][index+counter] == "T":
+                    counter_of_H = 0
+                    ship_to_sunk = []
+                    return  ship_to_sunk
+                if player_board[row][index+counter] == "Z" and counter_of_H > 1:
+                    return  ship_to_sunk
+                counter+=1
+        index+=1
 
-#     c = 0
-#     count_validator = 0
-                
-#     for i in ship:
-#         if player_board[row+c][column] == "H":
-#             count_validator += 1
-#         c += 1
-#     if count_validator == len(ship):
-#         for i in ship:
-#             player_board[row-c][column] = "S"
-#             guess_board[row-c][column] = "S"
-#             return guess_board                    
-
-#     c = 0
-#     count_validator = 0
-#     for i in ship:
-#         if player_board[row-c][column] == "H":
-#             count_validator += 1
-
-#     if count_validator == len(ship):
-#         for i in ship:
-#             player_board[row-c][column] = "S"
-#             guess_board[row-c][column] = "S"
-#         return guess_board
-#         c -= 1
+def check_column(player_board, ship_lenght):
     
-#     c = 0
-#     count_validator = 0
-#     for i in ship:
-#         if player_board[row][column+c] == "H":
-#             count_validator += 1
+    counter_of_H = 0
+    biggest_ship = max(ship_lenght)
+    index_r = 0
+    for row in player_board:
+        index_c = 0
+        for space in row:
+            ship_to_sunk = []
+            counter = 1
+            if player_board[index_r][index_c] == "Z":
+                for j in range(biggest_ship+1):
+                    if player_board[index_r][index_c] == "H":
+                        counter_of_H += 1
+                        ship_to_sunk.append(tuple(player_board[index_r][index_c]))
+                    if player_board[index_r][index_c] == "T":
+                        counter_of_H = 0
+                        ship_lenght = []
+                        return ship_to_sunk
+                    if player_board[index_r][index_c] == "Z" and counter_of_H > 1:
+                        return ship_to_sunk
+                    if index_c is len(row)-1:
+                        if player_board[index_r][index_c] == "H":
+                            return ship_to_sunk
+                    counter+=1
+            if player_board[index_r][index_c] == "H":
+                counter = 0
+                for j in range(biggest_ship+1):
+                    if player_board[index_r][index_c] == "H":
+                        counter_of_H += 1
+                        ship_to_sunk.append(tuple(player_board[index_r][index_c]))
+                    if player_board[index_r][index_c] == "T":
+                        counter_of_H = 0
+                        ship_lenght = []
+                        return ship_to_sunk
+                    if player_board[index_r][index_c] == "Z" and counter_of_H > 1:
+                        return ship_to_sunk
+                    if len(index_c) is len(row)-1:
+                        if player_board[index_r][index_c] == "H":
+                            return ship_to_sunk
+                    counter+=1
+        index_r+=1
 
-#         if count_validator == len(ship):
-#             player_board[row][column+c] = "S"
-#             guess_board[row][column+c] = "S"
-#             return guess_board
-#         c += 1
+def switch_hits_to_sunk(row,player_board, player_guess_board, ship_lenght):
 
-#     c = 0
-#     count_validator = 0
-#     for i in ship:
-#         if player_board[row][column-c] == "H":
-#             count_validator += 1
+    ship_to_sunk = check_row(row, ship_lenght,player_board)
 
-#         if count_validator == len(ship):
-#             player_board[row][column-c] = "S"
-#             guess_board[row][column-c] = "S"
-#             return guess_board
-#         c -= 1
-                
+    counter = 0
+    if ship_to_sunk != []:
+        for i in ship_to_sunk:
+            player_board[row][counter] == "S"
+            player_guess_board[row][counter] == "S"
+            counter += 1
+
+    counter = 0
+    ship_to_sunk = check_column(player_board, ship_lenght)
+    if ship_to_sunk != []:
+        for i in ship_to_sunk:
+            x,y = ship_to_sunk[counter]
+            player_board[x][y] = "S"
+            player_guess_board[x][y] = "S"
+            counter += 1
+
+
         
 
 def main():
@@ -588,7 +613,7 @@ def main():
             if counter % 2 == 0:
                 print(f"\nIt's time for {name} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_versus, counter)
+                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_versus, counter, ships_length)
                 if win_condition(player_two_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
                     print(f"{name}, you have won!")
@@ -598,7 +623,7 @@ def main():
             if counter % 2 == 1:
                 print(f"\nIt's time for {name_two} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_versus, counter)
+                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_versus, counter,ships_length)
                 if win_condition(player_one_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
                     print(f"{name_two}, you have won!")
@@ -608,7 +633,7 @@ def main():
             if counter % 2 == 0:
                 print(f"\nIt's time for {name} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_versus, counter)
+                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_versus, counter, ships_length)
                 if win_condition(player_two_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
                     print(f"{name}, you have won!")
@@ -616,7 +641,7 @@ def main():
             if counter % 2 == 1:
                 print(f"\nIt's time for {name_two} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_versus, counter)
+                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_versus, counter, ships_length)
                 if win_condition(player_two_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
                     print(f"{name_two} has won")
@@ -626,7 +651,7 @@ def main():
             if counter % 2 == 0:
                 print(f"\nIt's time for {name} one to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_versus, counter)
+                update_board_after_shoot(player_two_board,player_two_guess_board, board_size, player_versus, counter, ships_length)
                 if win_condition(player_two_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
                     print("Ano Voldigord has won")
@@ -634,7 +659,7 @@ def main():
             if counter % 2 == 1:
                 print(f"\nIt's time for {name_two} two to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_versus, counter)
+                update_board_after_shoot(player_one_board,player_one_guess_board, board_size, player_versus, counter, ships_length)
                 if win_condition(player_two_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
                     print(f"{name_two} has won")

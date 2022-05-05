@@ -48,7 +48,7 @@ def check_row(row,ships_lenght):
                 counter+=1
         index+=1
 
-def check_column(row,column,ship_lenght,player_board):
+def check_column(player_board, ship_lenght):
     
     counter_of_H = 0
     biggest_ship = max(ship_lenght)
