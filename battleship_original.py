@@ -1,13 +1,7 @@
-from random import randint, random, choice
+from random import randint, choice
 import time
-from wsgiref.util import shift_path_info
 
-# de facut print pt ambele boarduri in paralel
-# timesleep pentru partile unde joaca ai-ul
-# ai
-# bug, ramane blocat pe linia 392 si nu iese din else
 # bug, daca e o nava cu toate caracterele H(hit) in loc de T(turned), nu se schimba in S(sunk)
-# de facut AI vs AI
 
 # returneaza player_versus
 def get_game_mode():
@@ -355,7 +349,6 @@ def update_board_after_shoot(player_board, guess_board, board_size, player_versu
         elif player_versus == "3":
             row, column = play_with_AI(board_size, player_versus, counter)
                 
-        # switch_hits_to_sunk(row,player_board,guess_board, ships_length)
 
         try:
             if player_board[row][column] in ["-", "Z"]:
@@ -368,10 +361,13 @@ def update_board_after_shoot(player_board, guess_board, board_size, player_versu
                 player_board[row][column] = "H"
                 guess_board[row][column] = "H"    
                 print("\nYou got a shot!")
+                switch_hits_to_sunk(row,player_board,guess_board, ships_length)
                 return guess_board
+                
             
         except IndexError:
             pass
+            
         else:
             print("Try another one, seems it wasn't a valid input")   
 
@@ -399,12 +395,13 @@ def tie_condition(turns, counter):
         return False
 
 # Optional
-# Hits este o variabila care se declara inainte de inceperea jocului, in partea de AI.
-# Ea da count pentru fiecare Hit de pe tabla inamicului
-# Prima oara se compara pentru validare, dupa ce vede daca hits venit din afara este mai mare 
-# Decat cel care e in interiorul functiei
 def play_with_AI(board_size, player_versus, counter,hits=1,p_hits=1, player_one_guess_board=5, difficulty_of_AI="1"):
     
+    # Hits este o variabila care se declara inainte de inceperea jocului, in partea de AI.
+    # Ea da count pentru fiecare Hit de pe tabla inamicului
+    # Prima oara se compara pentru validare, dupa ce vede daca hits venit din afara este mai mare 
+    # Decat cel care e in interiorul functiei
+
     time.sleep(1)
     if player_versus == "2":
         if difficulty_of_AI == "1":
@@ -497,6 +494,7 @@ def check_column(player_board, ship_lenght):
     
     counter_of_H = 0
     biggest_ship = max(ship_lenght)
+
     index_r = 0
     for row in player_board:
         index_c = 0
@@ -507,7 +505,7 @@ def check_column(player_board, ship_lenght):
                 for j in range(biggest_ship+1):
                     if player_board[index_r][index_c] == "H":
                         counter_of_H += 1
-                        ship_to_sunk.append(tuple(player_board[index_r][index_c]))
+                        ship_to_sunk.append((index_r,index_c))
                     if player_board[index_r][index_c] == "T":
                         counter_of_H = 0
                         ship_lenght = []
@@ -517,23 +515,23 @@ def check_column(player_board, ship_lenght):
                     if index_c is len(row)-1:
                         if player_board[index_r][index_c] == "H":
                             return ship_to_sunk
-                    counter+=1
+                counter+=1
             if player_board[index_r][index_c] == "H":
                 counter = 0
                 for j in range(biggest_ship+1):
                     if player_board[index_r][index_c] == "H":
                         counter_of_H += 1
-                        ship_to_sunk.append(tuple(player_board[index_r][index_c]))
+                        ship_to_sunk.append((index_r,index_c))
                     if player_board[index_r][index_c] == "T":
                         counter_of_H = 0
                         ship_lenght = []
                         return ship_to_sunk
                     if player_board[index_r][index_c] == "Z" and counter_of_H > 1:
                         return ship_to_sunk
-                    if len(index_c) is len(row)-1:
+                    if index_c is row:
                         if player_board[index_r][index_c] == "H":
                             return ship_to_sunk
-                    counter+=1
+                counter+=1
         index_r+=1
 
 def switch_hits_to_sunk(row,player_board, player_guess_board, ship_lenght):
@@ -543,8 +541,8 @@ def switch_hits_to_sunk(row,player_board, player_guess_board, ship_lenght):
     counter = 0
     if ship_to_sunk != []:
         for i in ship_to_sunk:
-            player_board[row][counter] == "S"
-            player_guess_board[row][counter] == "S"
+            player_board[row][ship_to_sunk[counter]] == "S"
+            player_guess_board[row][ship_to_sunk[counter]] == "S"
             counter += 1
 
     counter = 0
@@ -555,9 +553,6 @@ def switch_hits_to_sunk(row,player_board, player_guess_board, ship_lenght):
             player_board[x][y] = "S"
             player_guess_board[x][y] = "S"
             counter += 1
-
-
-        
 
 def main():
     
