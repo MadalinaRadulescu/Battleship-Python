@@ -29,8 +29,9 @@ def get_board_size():
     while True:
         board_size = input("Choose the board size between 5 and 10\n")
         try:
-            if int(board_size) in range(5,11):
-                return int(board_size)
+            int_board = int(board_size)
+            if int_board in range(5,11):
+                return int_board
             else:
                 print("Please choos a valid board size!\n")
         except ValueError:
@@ -56,8 +57,9 @@ def get_ships_number():
         while True:
             ship_length = input(f"How big you want the ship number {n}/{ships_number} (1-4)?\n")
             try:
-                if int(ship_length) in range(1, 5):
-                    ships_length.append(int(ship_length))
+                int_ship_lenght =int(ship_length)
+                if int_ship_lenght in range(1, 5):
+                    ships_length.append(int_ship_lenght)
                     break
             except ValueError:
                 print("Oops, this is not in range, please try again.\n")
@@ -71,11 +73,12 @@ def get_turns_to_play(ships_lenght):
     while True:
         turns = input(f"How many turns would you like to play? Choose a number between {minimum_turns} and 50\n")
         try:
-            if int(turns) in range(minimum_turns,51):
-                return int(turns)
-            elif int(turns) == 0:
+            int_turns = int(turns)
+            if int_turns in range(minimum_turns,51):
+                return int_turns
+            elif int_turns == 0:
                 turns = 100
-                return int(turns)
+                return int_turns
             else:
                 print("Please choose a valid number of turns\n")
         except ValueError:
@@ -85,43 +88,41 @@ def get_turns_to_play(ships_lenght):
 def generate_board(board_size):
     
     board = []
-    for i in range(board_size):
-        i = []
-        board.append(i)
-        for j in range(board_size):
-            j = "-"
-            i.append(j)
+    for _ in range(board_size):
+        row = []
+        board.append(row)
+        for _ in range(board_size):
+            space = "-"
+            row.append(space)
 
     return board
 
 # printeazaz boardul
 def print_board(board, board_size):
 
-    letters = " ABCDEFGHIJ"
+    # letters = " ABCDEFGHIJ"
     first_row = "  "
     n = 0
     for i in range(1,board_size+1):
         
         first_row+= " "
         if i > 9 :
-            first_row+=("".join(str(i)))
+            first_row+=str(i)
         else:        
-            first_row+=(" ".join(str(i)))
+            first_row+=" "+str(i)
         
     print(f"\n{first_row}")
-    for i in board:
+    for i in board:        
+        print(chr(n+65)+ "  " + " ".join(i))
         n += 1
-        print(str(letters[n])+ "  " + " ".join(i))
 
 # returneaza ships o lista de liste
 def generate_ships(ships_number=3, ship_length=[3,3,2]):
     
-    n=0
     ships = []
-    for ship in range(ships_number):
+    for n in range(ships_number):
         ship = (["T"]*ship_length[n])
-        ships.append(ship)
-        n+=1
+        ships.append(ship)    
 
     return ships
 
@@ -132,9 +133,10 @@ def get_coordinates(board_size):
     numbers = range(1, board_size+1)
     while True:
         player_cordinates = input("\nPlease select coordinates:\n").upper()
+        #int row=(ord(player_cordinates[0])-ord("A"))
+        #int col = int(player_cordinates[1:])-1
         try:
             if player_cordinates:
-                print(player_cordinates)
                 try:
                     if player_cordinates[0] in letters[:board_size] and int(player_cordinates[1:]) in numbers:
                         if int(player_cordinates[1:]) > 9 : 
@@ -361,7 +363,7 @@ def update_board_after_shoot(player_board, guess_board, board_size, player_versu
                 player_board[row][column] = "H"
                 guess_board[row][column] = "H"    
                 print("\nYou got a shot!")
-                switch_hits_to_sunk(row,player_board,guess_board, ships_length)
+                # switch_hits_to_sunk(row,player_board,guess_board, ships_length)
                 return guess_board
                 
             
@@ -372,19 +374,16 @@ def update_board_after_shoot(player_board, guess_board, board_size, player_versu
             print("Try another one, seems it wasn't a valid input")   
 
 # returneaza true sau false
-def win_condition(board, board_size):
+def win_condition(board, board_size):`git `
 
     counter = 0
     for row in board:
         if "T" not in row:
             counter += 1
         else:
-            pass
-            
-    if counter == board_size:
-        return True
-    else:
-        return False 
+            pass 
+
+    return counter==board_size
 
 # returneaza true sau false
 def tie_condition(turns, counter):
@@ -462,7 +461,7 @@ def check_row(row,ships_lenght, player_board):
         counter=1
         if i == "Z":            
             for j in range(biggest_ship+1):
-                if player_board[row][index+counter] == "H":
+                if player_board[row][] == "H":
                     counter_of_H +=1
                     ship_to_sunk.append(index+counter)
                 if player_board[row][index+counter] == "T":
