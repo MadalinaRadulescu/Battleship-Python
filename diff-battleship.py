@@ -1,5 +1,4 @@
 from random import randint, choice
-from sqlite3 import Row
 import time
 
 # bug, daca e o nava cu toate caracterele H(hit) in loc de T(turned), nu se schimba in S(sunk)
@@ -485,7 +484,7 @@ def tie_condition(turns, counter):
     else:
         return False
 
-def play_with_AI(board_size, player_versus, counter,hits=1,p_hits=1, player_one_guess_board=5, difficulty_of_AI="1"):
+def play_with_AI(board_size, player_versus, counter,outside_hits_counter=1,inside_hits_counter=1, player_one_guess_board=5, difficulty_of_AI="1"):
     
     # Hits este o variabila care se declara inainte de inceperea jocului, in partea de AI.
     # Ea da count pentru fiecare Hit de pe tabla inamicului
@@ -501,7 +500,13 @@ def play_with_AI(board_size, player_versus, counter,hits=1,p_hits=1, player_one_
                 coordinates = randint(0,board_size),randint(0,board_size)
                 if coordinates not in coordinates_validation_list:
                     coordinates_validation_list.append(coordinates)
-                    return coordinates  
+                    return coordinates 
+
+        elif difficulty_of_AI == "2":
+
+            coordinates, inside_hits_counter = smart_AI()
+
+
     if player_versus == "3":
         if counter % 2 == 0:
             coordinates_validation_list = []
@@ -517,6 +522,7 @@ def play_with_AI(board_size, player_versus, counter,hits=1,p_hits=1, player_one_
                 if coordinates not in coordinates_validation_list_two:
                     coordinates_validation_list_two.append(coordinates)
                     return coordinates
+    
         
 def print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two):
 
@@ -661,7 +667,54 @@ def sunk_ships(player_board, ships_coordinates_on_map,player_guess_board):
                         player_board[row][column] = "S"
                         player_guess_board[row][column] = "S"
     
+def smart_AI(board_size,outside_hits_counter,inside_hits_counter,turns_without_hit,sunk_counter,player_one_ships,player_one_guess_board):
+
+    smallest_ship = min(player_one_ships)
+    coordinates_validation_list = []
+
+    if outside_hits_counter == 0:
+        coordinates = randint(0,board_size),randint(0,board_size)
+        if coordinates not in coordinates_validation_list:
+            coordinates_validation_list.append(coordinates)
+            return coordinates, inside_hits_counter
+
+    #daca s-a scufundat o nava, se reseteaza counterii si incepe sa se vaneze urmatoarea pana v-a fii gasita random
+    if outside_hits_counter - sunk_counter ==0:
+        inside_hits_counter = 0
+        turns_without_hit = 0
+
+    if outside_hits_counter > inside_hits_counter:
+        inside_hits_counter = outside_hits_counter
+        row,column = coordinates_validation_list[-1]
+        coordinaes = row+1,column   
+        turns_without_hit += 1    
+        if column+1<len(board_size[0]) or player_one_guess_board[row+1][column] == "o":
+            row,column = coordinates_validation_list[-2]
+            coordinaes = row,column+1
+            if row+1<len(board_size[0]) or player_one_guess_board[row][column] == "o":
+                if column-1>=0:
+                    row,column = coordinates_validation_list[-3]
+                    coordinaes = row-1,column                    
+                    if row-1>=0:
+                        row,column = coordinates_validation_list[-4]
+                        coordinaes = row,column-1
+
+
+    elif turns_without_hit == 1 and row+1<len(board_size[0]):
+        row,column = coordinates_validation_list[-2]
+        coordinaes = row,column+1
+        if
+    elif turns_without_hit == 2 and column-1>=0:
+        row,column = coordinates_validation_list[-3]
+        coordinaes = row-1,column
+    if turns_without_hit == 3 and row-1>=0:
+        row,column = coordinates_validation_list[-4]
+        coordinaes = row,column-1  
+
+    return coordinates, inside_hits_counter
     
+        
+        
 
 
 
