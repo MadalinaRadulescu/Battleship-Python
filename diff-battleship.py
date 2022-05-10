@@ -1,5 +1,6 @@
 from random import randint, choice
 import time
+from tkinter.tix import COLUMN
 
 # bug, daca e o nava cu toate caracterele H(hit) in loc de T(turned), nu se schimba in S(sunk)
 
@@ -303,7 +304,7 @@ def place_ships_AI(
                         row,
                         column,
                         targeted_ship_coordinates,
-                        inside_counter,
+                        inside_hits_counter,
                         coordinates_validation_list,
                         board_hits_counter
                     ) = play_with_AI(
@@ -324,7 +325,7 @@ def place_ships_AI(
                     row,
                     column,
                     targeted_ship_coordinates,
-                    inside_counter,
+                    inside_hits_counter,
                     coordinates_validation_list,
                 ) = play_with_AI(
                     board_size,
@@ -553,7 +554,6 @@ def update_board_after_shoot_human(
                 player_board[row][column] = "H"
                 guess_board[row][column] = "H"
                 print("\nYou got a shot!")
-                # switch_hits_to_sunk(row,player_board,guess_board, ships_length)
                 return guess_board
 
         except IndexError:
@@ -578,10 +578,16 @@ def update_board_after_shoot_AI(
     turns_without_hit,
     inside_hits_counter,
 ):
+
+    row = 0
+    column = 0
     while True:
         if player_versus == "2":
             if counter % 2 == 1:
-                row, column = play_with_AI(
+                row, column,targeted_ship_coordinates,
+                inside_hits_counter,
+                coordinates_validation_list,
+                board_hits_counter = play_with_AI(
                     board_size,
                     player_versus,
                     counter,
@@ -711,12 +717,8 @@ def play_with_AI(
     inside_hits_counter,
 ):
 
-    # Hits este o variabila care se declara inainte de inceperea jocului, in partea de AI.
-    # Ea da count pentru fiecare Hit de pe tabla inamicului
-    # Prima oara se compara pentru validare, dupa ce vede daca hits venit din afara este mai mare
-    # Decat cel care e in interiorul functiei
-
     time.sleep(1)
+
     if player_versus == "2":
         if difficulty_of_AI == "1":
 
@@ -728,12 +730,12 @@ def play_with_AI(
 
         elif difficulty_of_AI == "2":
 
-            (   
-                coordinates,
+            (   row,
+                column,
                 board_hits_counter,
                 targeted_ship_coordinates,
-                inside_counter,
-                coordinates_validation_list,
+                inside_hits_counter,
+                coordinates_validation_list
             ) = smart_AI(
                 player_guess_board,
                 coordinates_validation_list,
@@ -746,7 +748,7 @@ def play_with_AI(
             return (row,
                 column,                
                 targeted_ship_coordinates,
-                inside_counter,
+                inside_hits_counter,
                 coordinates_validation_list,
                 board_hits_counter
             )
@@ -768,7 +770,7 @@ def play_with_AI(
 
 # de adaugat o lista cu coordonatele hit de fiecare data cand se loveste un ship si dupa sa se gasesc toate coordonatele sa se reseteze
 def perimeter_verification_AI(
-    player_board,
+    player_guess_board,
     board_hits_counter,
     coordinates_validation_list,
     turns_without_hit,
@@ -780,320 +782,341 @@ def perimeter_verification_AI(
     column = targeted_ship_coordinates[-1][1]
     # se analizeaza toate posibilitatile pentru vecinii din jurul partii lovite de nava, se trece dintr-o functie in alata pana se gaseste o alta parte
     def up_verify(
-        player_board,
+        player_guess_board,
         board_hits_counter,
         coordinates_validation_list,
         turns_without_hit,
         targeted_ship_coordinates,
         inside_hits_counter,
         row,
-        column,
+        column
     ):
 
         if (
             board_hits_counter > inside_hits_counter
             and column - 1 >= 0
-            and player_board[row - 1][column] == "-"
+            and player_guess_board[row - 1][column] == "-"
         ):
             inside_hits_counter = board_hits_counter
             row, column = coordinates_validation_list[-1]
             coordinates = row - 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 1
             and column - 1 >= 0
-            and player_board[row - 1][column] == "-"
+            and player_guess_board[row - 1][column] == "-"
         ):
             row, column = coordinates_validation_list[-2]
             coordinates = row - 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 2
             and column - 1 >= 0
-            and player_board[row - 1][column] == "-"
+            and player_guess_board[row - 1][column] == "-"
         ):
             row, column = coordinates_validation_list[-3]
             coordinates = row - 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 3
             and column - 1 >= 0
-            and player_board[row - 1][column] == "-"
+            and player_guess_board[row - 1][column] == "-"
         ):
             row, column = coordinates_validation_list[-4]
             coordinates = row - 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
             return (
-                coordinates,
+                row, 
+                column,
                 inside_hits_counter,
                 targeted_ship_coordinates,
                 coordinates_validation_list,
             )
         else:
             right_verify(
-                player_board,
+                player_guess_board,
                 board_hits_counter,
                 coordinates_validation_list,
                 turns_without_hit,
+                targeted_ship_coordinates,
+                inside_hits_counter,
+                row,
+                column
             )
 
     def right_verify(
-        player_board,
+        player_guess_board,
         board_hits_counter,
         coordinates_validation_list,
         turns_without_hit,
         targeted_ship_coordinates,
         inside_hits_counter,
         row,
-        column,
+        column
     ):
 
         if (
             board_hits_counter > inside_hits_counter
-            and row + 1 < len(player_board[0])
-            and player_board[row][column + 1] == "-"
+            and row + 1 < len(player_guess_board[0])
+            and player_guess_board[row][column + 1] == "-"
         ):
             inside_hits_counter = board_hits_counter
             row, column = coordinates_validation_list[-1]
             coordinates = row, column + 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 1
-            and row + 1 < len(player_board[0])
-            and player_board[row][column + 1] == "-"
+            and row + 1 < len(player_guess_board[0])
+            and player_guess_board[row][column + 1] == "-"
         ):
             row, column = coordinates_validation_list[-2]
             coordinates = row, column + 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 2
-            and row + 1 < len(player_board[0])
-            and player_board[row][column + 1] == "-"
+            and row + 1 < len(player_guess_board[0])
+            and player_guess_board[row][column + 1] == "-"
         ):
             row, column = coordinates_validation_list[-3]
             coordinates = row, column + 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 3
-            and row + 1 < len(player_board[0])
-            and player_board[row][column + 1] == "-"
+            and row + 1 < len(player_guess_board[0])
+            and player_guess_board[row][column + 1] == "-"
         ):
             row, column = coordinates_validation_list[-4]
             coordinates = row, column + 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
             return (
-                coordinates,
+                row, 
+                column,
                 inside_hits_counter,
                 targeted_ship_coordinates,
                 coordinates_validation_list,
             )
         else:
             down_verify(
-                player_board,
+                player_guess_board,
                 board_hits_counter,
                 coordinates_validation_list,
                 turns_without_hit,
+                targeted_ship_coordinates,
+                inside_hits_counter,
+                row,
+                column
             )
 
     def down_verify(
-        player_board,
+        player_guess_board,
         board_hits_counter,
         coordinates_validation_list,
         turns_without_hit,
         targeted_ship_coordinates,
         inside_hits_counter,
         row,
-        column,
+        column
     ):
 
         if (
             board_hits_counter > inside_hits_counter
-            and column + 1 < len(player_board[0])
-            and player_board[row + 1][column] == "-"
+            and column + 1 < len(player_guess_board[0])
+            and player_guess_board[row + 1][column] == "-"
         ):
             inside_hits_counter = board_hits_counter
             row, column = coordinates_validation_list[-1]
             coordinates = row + 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 1
-            and column + 1 < len(player_board[0])
-            and player_board[row + 1][column]
+            and column + 1 < len(player_guess_board[0])
+            and player_guess_board[row + 1][column]
         ):
             row, column = coordinates_validation_list[-2]
             coordinates = row + 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 2
-            and column + 1 < len(player_board[0])
-            and player_board[row + 1][column]
+            and column + 1 < len(player_guess_board[0])
+            and player_guess_board[row + 1][column]
         ):
             row, column = coordinates_validation_list[-3]
             coordinates = row + 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         elif (
             turns_without_hit == 3
-            and column + 1 < len(player_board[0])
-            and player_board[row + 1][column]
+            and column + 1 < len(player_guess_board[0])
+            and player_guess_board[row + 1][column]
         ):
             row, column = coordinates_validation_list[-4]
             coordinates = row + 1, column
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
             return (
-                coordinates,
+                row,
+                column,
                 inside_hits_counter,
                 targeted_ship_coordinates,
                 coordinates_validation_list,
             )
         else:
             left_verify(
-                player_board,
+                player_guess_board,
                 board_hits_counter,
                 coordinates_validation_list,
                 turns_without_hit,
+                targeted_ship_coordinates,
+                inside_hits_counter,
+                row,
+                column
             )
 
     def left_verify(
-        player_board,
+        player_guess_board,
         board_hits_counter,
         coordinates_validation_list,
         turns_without_hit,
         targeted_ship_coordinates,
         inside_hits_counter,
         row,
-        column,
+        column
     ):
 
         if (
             board_hits_counter > inside_hits_counter
             and row - 1 >= 0
-            and player_board[row][column - 1] == "-"
+            and player_guess_board[row][column - 1] == "-"
         ):
             inside_hits_counter = board_hits_counter
             row, column = coordinates_validation_list[-1]
             coordinates = row, column - 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         if turns_without_hit == 3 and row - 1 >= 0:
             row, column = coordinates_validation_list[-2]
             coordinates = row, column - 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         if turns_without_hit == 3 and row - 1 >= 0:
             row, column = coordinates_validation_list[-3]
             coordinates = row, column - 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
-            return coordinates, inside_hits_counter, targeted_ship_coordinates
+            return row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list
         if turns_without_hit == 3 and row - 1 >= 0:
             row, column = coordinates_validation_list[-4]
             coordinates = row, column - 1
             coordinates_validation_list.append(coordinates)
             targeted_ship_coordinates.append(coordinates)
             return (
-                coordinates,
+                row, 
+                column, 
                 inside_hits_counter,
                 targeted_ship_coordinates,
-                coordinates_validation_list,
+                coordinates_validation_list
             )
         else:
             up_verify(
-                player_board,
+                player_guess_board,
                 board_hits_counter,
                 coordinates_validation_list,
                 turns_without_hit,
+                targeted_ship_coordinates,
+                inside_hits_counter,
+                row,
+                column
             )
 
-    coordinates, inside_hits_counter, targeted_ship_coordinates = up_verify(
-        player_board,
+    row, column, inside_hits_counter, targeted_ship_coordinates, coordinates_validation_list = up_verify(
+        player_guess_board,
         board_hits_counter,
         coordinates_validation_list,
         turns_without_hit,
         targeted_ship_coordinates,
         inside_hits_counter,
         row,
-        column,
+        column
     )
 
     return (
-        coordinates,
+        row, 
+        column,
         inside_hits_counter,
         targeted_ship_coordinates,
-        coordinates_validation_list,
+        coordinates_validation_list
     )
 
 
-def destroy_founded_ship(player_board, targeted_ship_coordinates):
+def destroy_founded_ship(player_guess_board, targeted_ship_coordinates):
 
     # daca primul index din elementele din lista targeted_ship_coordinates este aceeasi
     # inseamna ca randul trebuie sa ramana acelasi pana ce toata nava a fost lovita
     if targeted_ship_coordinates[-1][0] == targeted_ship_coordinates[-2][0]:
-        row = player_board[targeted_ship_coordinates[-1][0]]
+        row = player_guess_board[targeted_ship_coordinates[-1][0]]
 
-        if player_board[row][
+        if player_guess_board[row][
             targeted_ship_coordinates[-1][1] + 1
         ] == "-" and targeted_ship_coordinates[-1][1] + 1 < len(
-            player_board[0]
+            player_guess_board[0]
         ):  # daca este loc in dreapta sa loveasca, v-a lovi
-            column = player_board[row][targeted_ship_coordinates[-1][1] + 1]
+            column = player_guess_board[row][targeted_ship_coordinates[-1][1] + 1]
             targeted_ship_coordinates.append(row, column)
         elif (
-            player_board[row][targeted_ship_coordinates[0][1] - 1] == "-"
+            player_guess_board[row][targeted_ship_coordinates[0][1] - 1] == "-"
             and targeted_ship_coordinates[0][1] - 1 >= 0
         ):  # daca nu a gasit loc in dreapta, v-a lovi in stanga
-            column = player_board[row][targeted_ship_coordinates[0][1] - 1]
+            column = player_guess_board[row][targeted_ship_coordinates[0][1] - 1]
             targeted_ship_coordinates.append(row, column)
 
     # daca al doilea index din coordonatele din lista targeted_ship_coordinates este aceeasi
     # inseamna ca trebuie pastrata coloana si verificat in sus si in jos
     elif targeted_ship_coordinates[-1][1] == targeted_ship_coordinates[-2][1]:
-        column = player_board[targeted_ship_coordinates[-1][1]]
+        column = player_guess_board[targeted_ship_coordinates[-1][1]]
 
-        if player_board[targeted_ship_coordinates[-1][0] + 1][
+        if player_guess_board[targeted_ship_coordinates[-1][0] + 1][
             column
         ] == "-" and targeted_ship_coordinates[-1][0] + 1 < len(
-            player_board[0]
+            player_guess_board[0]
         ):  # daca este loc sa mearga in jos, v-a lovi in jos
-            row = player_board[targeted_ship_coordinates[-1][0] + 1][column]
+            row = player_guess_board[targeted_ship_coordinates[-1][0] + 1][column]
             targeted_ship_coordinates.append(row, column)
         elif (
-            player_board[targeted_ship_coordinates[0][0] - 1][column] == "-"
+            player_guess_board[targeted_ship_coordinates[0][0] - 1][column] == "-"
             and targeted_ship_coordinates[0][0] - 1 >= 0
         ):  # daca nu a gasit loc in jos, v-a lovi in sus
-            row = player_board[targeted_ship_coordinates[0][0] - 1][column]
+            row = player_guess_board[targeted_ship_coordinates[0][0] - 1][column]
             targeted_ship_coordinates.append(row, column)
 
     return row, column
 
 
-def count_hits_on_board(player_board):
+def count_hits_on_board(player_guess_board):
 
     board_hits_counter = 0
 
-    for row in player_board:
+    for row in player_guess_board:
         for space in row:
             if space == "H":
                 board_hits_counter += 1
@@ -1101,11 +1124,11 @@ def count_hits_on_board(player_board):
     return board_hits_counter
 
 
-def count_sunk_on_board(player_board):
+def count_sunk_on_board(player_guess_board):
 
     sunk_counter = 0
 
-    for row in player_board:
+    for row in player_guess_board:
         for space in row:
             if space == "S":
                 sunk_counter += 1
@@ -1114,7 +1137,7 @@ def count_sunk_on_board(player_board):
 
 
 def smart_AI(
-    player_board,
+    player_guess_board,
     coordinates_validation_list,
     board_hits_counter,
     targeted_ship_coordinates,
@@ -1123,8 +1146,8 @@ def smart_AI(
 ):
     # player_boar este echivalentul player_guess_board ->trebuie sa ii schimb numele de prea multe ori in diferite locuri/functii
 
-    board_hits_counter = count_hits_on_board(player_board)
-    sunk_counter = count_sunk_on_board(player_board)
+    board_hits_counter = count_hits_on_board(player_guess_board)
+    sunk_counter = count_sunk_on_board(player_guess_board)
 
     # daca e prima runda sau daca s-a scufundat o nava, se reseteaza counterii si incepe sa se vaneze urmatoarea pana v-a fii gasita random
     if board_hits_counter - sunk_counter <= 0:
@@ -1132,26 +1155,31 @@ def smart_AI(
         turns_without_hit = 0
         # Task 1
         if board_hits_counter == 0:
-            coordinates = randint(0, len(player_board)), randint(0, len(player_board))
+            coordinates = randint(0, len(player_guess_board)), randint(0, len(player_guess_board))
             if coordinates not in coordinates_validation_list:
                 coordinates_validation_list.append(coordinates)
+                row = coordinates[0]
+                column = coordinates[1]
                 return (
-                    coordinates,
-                    inside_hits_counter,
+                    row,
+                    column,
+                    board_hits_counter,
                     targeted_ship_coordinates,
                     inside_hits_counter,
-                    coordinates_validation_list,
+                    coordinates_validation_list
                 )
 
         # Task 2
     if board_hits_counter == 1:
+        targeted_ship_coordinates.append(coordinates_validation_list[-1])
         (
-            coordinates,
-            inside_counter,
+            row,
+            column,
+            inside_hits_counter,
             targeted_ship_coordinates,
             coordinates_validation_list,
         ) = perimeter_verification_AI(
-            player_board,
+            player_guess_board,
             board_hits_counter,
             coordinates_validation_list,
             turns_without_hit,
@@ -1161,10 +1189,11 @@ def smart_AI(
 
         # Task 3 si Task 4
     elif board_hits_counter > 1:
-        coordinates = destroy_founded_ship(player_board, targeted_ship_coordinates)
+        row, column = destroy_founded_ship(player_guess_board, targeted_ship_coordinates)
 
     return (
-        coordinates,
+        row,
+        column,
         board_hits_counter,
         targeted_ship_coordinates,
         inside_hits_counter,
