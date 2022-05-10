@@ -441,13 +441,13 @@ def update_board_after_shoot_human(player_board, guess_board, board_size, player
         else:
             print("Try another one, seems it wasn't a valid input")   
 
-def update_board_after_shoot_AI(player_board, guess_board, board_size, player_versus, counter,ships_length):
+def update_board_after_shoot_AI(player_board, guess_board, board_size, player_versus, counter,ships_length, targeted_ship_direction):
     while True:
         if player_versus == "2":
            if counter % 2 == 1:
-                row, column = play_with_AI(board_size, player_versus, counter)
+                row, column = play_with_AI(board_size, player_versus, counter, targeted_ship_direction)
         elif player_versus == "3":
-            row, column = play_with_AI(board_size, player_versus, counter)                
+            row, column = play_with_AI(board_size, player_versus, counter, targeted_ship_direction)                
 
         try:
             if player_board[row][column] in ["-", "Z"]:
@@ -483,50 +483,7 @@ def tie_condition(turns, counter):
         return True
     else:
         return False
-
-# Play with AI
-def play_with_AI(board_size, player_versus, counter, player_guess_board, difficulty_of_AI="1"):
-    
-    # Hits este o variabila care se declara inainte de inceperea jocului, in partea de AI.
-    # Ea da count pentru fiecare Hit de pe tabla inamicului
-    # Prima oara se compara pentru validare, dupa ce vede daca hits venit din afara este mai mare 
-    # Decat cel care e in interiorul functiei
-
-    time.sleep(1)
-    if player_versus == "2":
-        if difficulty_of_AI == "1":
-
-            coordinates_validation_list = []
-            while True:
-                coordinates = randint(0,board_size),randint(0,board_size)
-                if coordinates not in coordinates_validation_list:
-                    coordinates_validation_list.append(coordinates)
-                    return coordinates 
-
-        elif difficulty_of_AI == "2":
-
-            coordinates, board_hits_counter = smart_AI(player_guess_board,coordinates_validation_list,board_hits_counter)
-
-            return coordinates
-
-
-    if player_versus == "3":
-        if counter % 2 == 0:
-            coordinates_validation_list = []
-            while True:
-                coordinates = randint(0,board_size),randint(0,board_size)
-                if coordinates not in coordinates_validation_list:
-                    coordinates_validation_list.append(coordinates)
-                    return coordinates 
-        elif counter % 2 == 1:
-            coordinates_validation_list_two = []
-            while True:
-                coordinates = randint(0,board_size),randint(0,board_size)
-                if coordinates not in coordinates_validation_list_two:
-                    coordinates_validation_list_two.append(coordinates)
-                    return coordinates
-    
-        
+      
 def print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two):
 
     letters = ord("A")
@@ -547,112 +504,6 @@ def print_paralel_board(board_size, player_one_guess_board, player_two_guess_boa
         c += 1
         n += 1
 
-# # # # # # # # # Not Used
-def check_row(row,ships_lenght, player_board):
-    
-    counter_of_H = 0
-    biggest_ship = max(ships_lenght)
-
-    index=0
-    for i in player_board[row]:
-        ship_to_sunk = []
-        counter=1
-        if i == "Z":            
-            for j in range(biggest_ship+1):
-                if player_board[row][index+counter] == "H":
-                    counter_of_H +=1
-                    ship_to_sunk.append(index+counter)
-                if player_board[row][index+counter] == "T":
-                    counter_of_H = 0
-                    ship_to_sunk = []
-                    return  ship_to_sunk
-                if player_board[row][index+counter] == "Z" and counter_of_H > 1:
-                    return  ship_to_sunk
-                if index+counter is len(row)-1:
-                    if player_board[row][index+counter]=="H":
-                        return  ship_to_sunk
-                counter+=1
-        if i == "H":
-            counter = 0
-            for j in range(biggest_ship+1):
-                if player_board[row][index+counter] == "H":
-                    counter_of_H +=1
-                    ship_to_sunk.append(index+counter)
-                if player_board[row][index+counter] == "T":
-                    counter_of_H = 0
-                    ship_to_sunk = []
-                    return  ship_to_sunk
-                if player_board[row][index+counter] == "Z" and counter_of_H > 1:
-                    return  ship_to_sunk
-                counter+=1
-        index+=1
-
-# # # # # # # # # Not Used
-def check_column(player_board, ship_lenght):
-    
-    counter_of_H = 0
-    biggest_ship = max(ship_lenght)
-
-    index_r = 0
-    for row in player_board:
-        index_c = 0
-        for space in row:
-            ship_to_sunk = []
-            counter = 1
-            if player_board[index_r][index_c] == "Z":
-                for j in range(biggest_ship+1):
-                    if player_board[index_r][index_c] == "H":
-                        counter_of_H += 1
-                        ship_to_sunk.append((index_r,index_c))
-                    if player_board[index_r][index_c] == "T":
-                        counter_of_H = 0
-                        ship_lenght = []
-                        return ship_to_sunk
-                    if player_board[index_r][index_c] == "Z" and counter_of_H > 1:
-                        return ship_to_sunk
-                    if index_c is len(row)-1:
-                        if player_board[index_r][index_c] == "H":
-                            return ship_to_sunk
-                counter+=1
-            if player_board[index_r][index_c] == "H":
-                counter = 0
-                for j in range(biggest_ship+1):
-                    if player_board[index_r][index_c] == "H":
-                        counter_of_H += 1
-                        ship_to_sunk.append((index_r,index_c))
-                    if player_board[index_r][index_c] == "T":
-                        counter_of_H = 0
-                        ship_lenght = []
-                        return ship_to_sunk
-                    if player_board[index_r][index_c] == "Z" and counter_of_H > 1:
-                        return ship_to_sunk
-                    if index_c is row:
-                        if player_board[index_r][index_c] == "H":
-                            return ship_to_sunk
-                counter+=1
-        index_r+=1
-
-# # # # # # # # # 
-def switch_hits_to_sunk(row,player_board, player_guess_board, ship_lenght):
-
-    ship_to_sunk = check_row(row, ship_lenght,player_board)
-
-    counter = 0
-    if ship_to_sunk != []:
-        for i in ship_to_sunk:
-            player_board[row][ship_to_sunk[counter]] == "S"
-            player_guess_board[row][ship_to_sunk[counter]] == "S"
-            counter += 1
-
-    counter = 0
-    ship_to_sunk = check_column(player_board, ship_lenght)
-    if ship_to_sunk != []:
-        for i in ship_to_sunk:
-            x,y = ship_to_sunk[counter]
-            player_board[x][y] = "S"
-            player_guess_board[x][y] = "S"
-            counter += 1
-
 def sunk_ships(player_board, ships_coordinates_on_map,player_guess_board):
 
     hits_counter = 0
@@ -669,7 +520,49 @@ def sunk_ships(player_board, ships_coordinates_on_map,player_guess_board):
                         column = ship_part[1]
                         player_board[row][column] = "S"
                         player_guess_board[row][column] = "S"
+
+# Play with AI
+def play_with_AI(board_size, player_versus, counter, player_guess_board, difficulty_of_AI, targeted_ship_direction):
     
+    # Hits este o variabila care se declara inainte de inceperea jocului, in partea de AI.
+    # Ea da count pentru fiecare Hit de pe tabla inamicului
+    # Prima oara se compara pentru validare, dupa ce vede daca hits venit din afara este mai mare 
+    # Decat cel care e in interiorul functiei
+
+    time.sleep(1)
+    if player_versus == "2":
+        if difficulty_of_AI == "1":
+
+            coordinates_validation_list = []
+            while True:
+                coordinates = randint(0,board_size),randint(0,board_size)
+                if coordinates not in coordinates_validation_list:
+                    coordinates_validation_list.append(coordinates)
+                    return coordinates 
+
+        elif difficulty_of_AI == "2":
+
+            coordinates, board_hits_counter, targeted_ship_direction = smart_AI(player_board,coordinates_validation_list,board_hits_counter,targeted_ship_coordinates,coordinates_validation_list)
+
+            return coordinates
+
+
+    if player_versus == "3":
+        if counter % 2 == 0:
+            coordinates_validation_list = []
+            while True:
+                coordinates = randint(0,board_size),randint(0,board_size)
+                if coordinates not in coordinates_validation_list:
+                    coordinates_validation_list.append(coordinates)
+                    return coordinates 
+        elif counter % 2 == 1:
+            coordinates_validation_list_two = []
+            while True:
+                coordinates = randint(0,board_size),randint(0,board_size)
+                if coordinates not in coordinates_validation_list_two:
+                    coordinates_validation_list_two.append(coordinates)
+                    return coordinates
+        
 # de adaugat o lista cu coordonatele hit de fiecare data cand se loveste un ship si dupa sa se gasesc toate coordonatele sa se reseteze
 def perimeter_verification_AI(player_board,board_hits_counter,coordinates_validation_list,turns_without_hit,targeted_ship_coordinates):
 
@@ -833,7 +726,7 @@ def count_sunk_on_board(player_board):
 
     return sunk_counter
 
-def smart_AI(player_board,coordinates_validation_list,board_hits_counter):
+def smart_AI(player_board,coordinates_validation_list,board_hits_counter,targeted_ship_coordinates,coordinates_validation_list):
 
 
     board_hits_counter = count_hits_on_board(player_board)
@@ -861,12 +754,10 @@ def smart_AI(player_board,coordinates_validation_list,board_hits_counter):
 
  
 
-    return coordinates, board_hits_counter
+    return coordinates, board_hits_counter, targeted_ship_coordinates
     
         
         
-
-
 
 def main():
     
@@ -882,6 +773,8 @@ def main():
     player_two_board = generate_board(board_size)
     player_two_guess_board = generate_board(board_size)
     player_two_ships = generate_ships(ships_number,ships_length)
+
+    targeted_ship_direction = []
     
     
  # to remove, not needed cause it is called later - updated removed
@@ -944,6 +837,7 @@ def main():
                     break
         
         if player_versus == "2":
+            
             if counter % 2 == 0:
                 print(f"\nIt's time for {name} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
@@ -957,7 +851,7 @@ def main():
                 name_two = "Darth Vader"
                 print(f"\nIt's time for {name_two} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot_AI(player_one_board,player_one_guess_board, board_size, player_versus, counter, ships_length)
+                update_board_after_shoot_AI(player_one_board,player_one_guess_board, board_size, player_versus, counter, ships_length, targeted_ship_direction)
                 sunk_ships(player_one_board,ships_one_coordinates_on_map,player_one_guess_board)
                 if win_condition(player_two_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
@@ -968,7 +862,7 @@ def main():
             if counter % 2 == 0:
                 print(f"\nIt's time for {name} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot_AI(player_two_board,player_two_guess_board, board_size, player_versus, counter, ships_length)
+                update_board_after_shoot_AI(player_two_board,player_two_guess_board, board_size, player_versus, counter, ships_length, targeted_ship_direction)
                 sunk_ships(player_two_board,ships_two_coordinates_on_map,player_two_guess_board)
                 if win_condition(player_one_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
@@ -977,7 +871,7 @@ def main():
             if counter % 2 == 1:
                 print(f"\nIt's time for {name_two} to shoot")
                 print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
-                update_board_after_shoot_AI(player_one_board,player_one_guess_board, board_size, player_versus, counter, ships_length)
+                update_board_after_shoot_AI(player_one_board,player_one_guess_board, board_size, player_versus, counter, ships_length, targeted_ship_direction)
                 sunk_ships(player_one_board,ships_one_coordinates_on_map,player_one_guess_board)
                 if win_condition(player_two_board, board_size):
                     print_paralel_board(board_size, player_one_guess_board, player_two_guess_board, name, name_two)
