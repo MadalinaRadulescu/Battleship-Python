@@ -579,27 +579,27 @@ def update_board_after_shoot_AI(
     inside_hits_counter,
 ):
 
-    row = 0
-    column = 0
+    # here is a problem, he needs to know row before while
     while True:
-        if player_versus == "2":
-            if counter % 2 == 1:
-                row, column,targeted_ship_coordinates,
-                inside_hits_counter,
+        if player_versus == "2":            
+            row,
+            column,
+            targeted_ship_coordinates,
+            inside_hits_counter,
+            coordinates_validation_list,
+            board_hits_counter = play_with_AI(
+                board_size,
+                player_versus,
+                counter,
+                guess_board,
+                difficulty_of_AI,
+                targeted_ship_coordinates,
                 coordinates_validation_list,
-                board_hits_counter = play_with_AI(
-                    board_size,
-                    player_versus,
-                    counter,
-                    guess_board,
-                    difficulty_of_AI,
-                    targeted_ship_coordinates,
-                    coordinates_validation_list,
-                    coordinates_validation_list_two,
-                    board_hits_counter,
-                    turns_without_hit,
-                    inside_hits_counter,
-                )
+                coordinates_validation_list_two,
+                board_hits_counter,
+                turns_without_hit,
+                inside_hits_counter,
+            )
         elif player_versus == "3":
             row, column = play_with_AI(
                 board_size,
@@ -1153,21 +1153,7 @@ def smart_AI(
     if board_hits_counter - sunk_counter <= 0:
         inside_hits_counter = 0
         turns_without_hit = 0
-        # Task 1
-        if board_hits_counter == 0:
-            coordinates = randint(0, len(player_guess_board)), randint(0, len(player_guess_board))
-            if coordinates not in coordinates_validation_list:
-                coordinates_validation_list.append(coordinates)
-                row = coordinates[0]
-                column = coordinates[1]
-                return (
-                    row,
-                    column,
-                    board_hits_counter,
-                    targeted_ship_coordinates,
-                    inside_hits_counter,
-                    coordinates_validation_list
-                )
+       
 
         # Task 2
     if board_hits_counter == 1:
@@ -1190,15 +1176,29 @@ def smart_AI(
         # Task 3 si Task 4
     elif board_hits_counter > 1:
         row, column = destroy_founded_ship(player_guess_board, targeted_ship_coordinates)
+    else:
+        coordinates = randint(0, len(player_guess_board)), randint(0, len(player_guess_board))
+        if coordinates not in coordinates_validation_list:
+            coordinates_validation_list.append(coordinates)
+            row = coordinates[0]
+            column = coordinates[1]
+            return (
+                row,
+                column,
+                board_hits_counter,
+                targeted_ship_coordinates,
+                inside_hits_counter,
+                coordinates_validation_list
+            )
 
-    return (
-        row,
-        column,
-        board_hits_counter,
-        targeted_ship_coordinates,
-        inside_hits_counter,
-        coordinates_validation_list,
-    )
+    # return (
+    #     row,
+    #     column,
+    #     board_hits_counter,
+    #     targeted_ship_coordinates,
+    #     inside_hits_counter,
+    #     coordinates_validation_list,
+    # )
 
 
 def main():
