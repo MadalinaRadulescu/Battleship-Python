@@ -672,6 +672,7 @@ def smart_AI(board_size,outside_hits_counter,inside_hits_counter,turns_without_h
     smallest_ship = min(player_one_ships)
     coordinates_validation_list = []
 
+    # Task 1
     if outside_hits_counter == 0:
         coordinates = randint(0,board_size),randint(0,board_size)
         if coordinates not in coordinates_validation_list:
@@ -679,37 +680,37 @@ def smart_AI(board_size,outside_hits_counter,inside_hits_counter,turns_without_h
             return coordinates, inside_hits_counter
 
     #daca s-a scufundat o nava, se reseteaza counterii si incepe sa se vaneze urmatoarea pana v-a fii gasita random
-    if outside_hits_counter - sunk_counter ==0:
+    if outside_hits_counter - sunk_counter == 0:
         inside_hits_counter = 0
         turns_without_hit = 0
 
     if outside_hits_counter > inside_hits_counter:
         inside_hits_counter = outside_hits_counter
         row,column = coordinates_validation_list[-1]
-        coordinaes = row+1,column   
-        turns_without_hit += 1    
-        if column+1<len(board_size[0]) or player_one_guess_board[row+1][column] == "o":
-            row,column = coordinates_validation_list[-2]
-            coordinaes = row,column+1
-            if row+1<len(board_size[0]) or player_one_guess_board[row][column] == "o":
-                if column-1>=0:
-                    row,column = coordinates_validation_list[-3]
-                    coordinaes = row-1,column                    
-                    if row-1>=0:
-                        row,column = coordinates_validation_list[-4]
-                        coordinaes = row,column-1
+        coordinates = row+1,column
+        turns_without_hit += 1
+        if row+1<len(board_size[0]) or player_one_guess_board[row+1][column] == "o":
+            row,column = coordinates_validation_list[-1]
+            coordinates = row,column+1
+            if column+1<len(board_size[0]) or player_one_guess_board[row][column] == "o":
+                    row,column = coordinates_validation_list[-1]
+                    coordinates = row-1,column                    
+                    if row-1>=0 or player_one_guess_board[row-1][column] == "o":
+                        row,column = coordinates_validation_list[-]
+                        coordinates = row,column-1
+                        
 
 
     elif turns_without_hit == 1 and row+1<len(board_size[0]):
         row,column = coordinates_validation_list[-2]
-        coordinaes = row,column+1
-        if
+        coordinates = row,column+1
+        
     elif turns_without_hit == 2 and column-1>=0:
         row,column = coordinates_validation_list[-3]
-        coordinaes = row-1,column
+        coordinates = row-1,column
     if turns_without_hit == 3 and row-1>=0:
         row,column = coordinates_validation_list[-4]
-        coordinaes = row,column-1  
+        coordinates = row,column-1  
 
     return coordinates, inside_hits_counter
     
